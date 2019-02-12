@@ -1,0 +1,56 @@
+<html>
+
+<body>
+  <canvas id="content" width="100" heigh="100"></canvas>
+  <div class="control-panel">
+    Camera parameter:
+    <div class="slidecontainer">
+      <input type="range" min="0.1" max="10" value="1" step="0.1" class="slider" id="C_h">
+      <p>h: <span id="V_C_h"></span></p>
+    </div>
+    <div class="slidecontainer">
+      <input type="range" min="0.1" max="10" value="1" step="0.1" class="slider" id="C_d">
+      <p>d: <span id="V_C_d"></span></p>
+    </div>
+    <div class="slidecontainer">
+      <input type="range" min="10" max="500" value="100" class="slider" id="C_f">
+      <p>f: <span id="V_C_f"></span></p>
+    </div>
+
+    <select class="choose_model">
+      <option disabled selected value>Please select model</option>
+    </select>
+    <button class="render">Render</button>
+    Using w, a, s, d to move; i, j, k, l to rotate camera.
+  </div>
+</body>
+<script type="module">
+  import { files } from './src/configs/constants.js';
+  import { readFile } from './src/utils/io.js';
+  import { parseFile } from './src/utils/parse.js';
+
+  // load all model options to menu
+  let choose_model = document.querySelector('select.choose_model');
+  files.forEach(file => {
+    let option = document.createElement('option');
+    option.setAttribute("value", file);
+    option.appendChild(document.createTextNode(file));
+    choose_model.appendChild(option);
+  });
+
+  // render model
+  let renderBtn = document.querySelector('.render');
+  renderBtn.addEventListener('click', () => {
+    let modelIndex = choose_model.selectedIndex;
+    let modelName = choose_model.options[modelIndex].value;
+    readFile(`./public/model/${modelName}.d.txt`)
+      .then(data => {
+        parseFile(data);
+      })
+      .catch(() => {
+        console.log('Load or parse file error');
+      });
+  });
+</script>
+
+</html>
