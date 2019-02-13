@@ -1,65 +1,70 @@
 <html>
+  <head>
+    <link href="./public/style/index.css" rel="stylesheet" type="text/css"/>
+  </head>
 <body>
-  <canvas id="content" width="500" height="500"></canvas>
-  <div class="control-panel">
-    Camera parameter:
-    <div class="slidecontainer">
-      <input id="h" type="range" min="0.1" max="10" value="1" step="0.1" class="slider">
-      <p>h: <span id="h_V"></span></p>
+  <h3 id="graphic">Graphics II - Lab 1</h3>
+  <div>
+    <canvas id="content" width="600" height="600"></canvas>
+    <hr class="seperator" size=600>
+    <div class="control-panel">
+      <p class="title">1. Select a model:</p>
+      <select class="choose_model">
+        <option disabled selected value>Please select model</option>
+      </select>
+      <button class="render">Render</button>
+      <p class="title">2. Camera parameter:</p>
+      <div class="slidecontainer">
+        <input id="h" type="range" min="0.1" max="10" value="1" step="0.1" class="slider">
+        <p>h: <span id="h_V"></span></p>
+      </div>
+      <div class="slidecontainer">
+        <input id="d" type="range" min="0.1" max="10" value="1" step="0.1" class="slider">
+        <p>d: <span id="d_V"></span></p>
+      </div>
+      <div class="slidecontainer">
+        <input id="f" type="range" min="10" max="500" value="100" class="slider">
+        <p>f: <span id="f_V"></span></p>
+      </div>
+      Using w, a, s, d to move; i, j, k, l to rotate camera.
     </div>
-    <div class="slidecontainer">
-      <input id="d" type="range" min="0.1" max="10" value="1" step="0.1" class="slider">
-      <p>d: <span id="d_V"></span></p>
-    </div>
-    <div class="slidecontainer">
-      <input id="f" type="range" min="10" max="500" value="100" class="slider">
-      <p>f: <span id="f_V"></span></p>
-    </div>
-
-    <select class="choose_model">
-      <option disabled selected value>Please select model</option>
-    </select>
-    <button class="render">Render</button>
-    Using w, a, s, d to move; i, j, k, l to rotate camera.
-  </div>
+  </dvi>
 </body>
 <script type="module">
   import { render } from './src/utils/render.js';
   import camera from './src/configs/camera.js';
   import model from './src/configs/model.js';
-  import { bindSlider, loadMenu } from './src/utils/dom.js';
-  import { vectorSubtract, vectorUnit, vector3dCrossProduct } from './src/operate/vector.js';
+  import { bindSlider, loadMenu, react2Key } from './src/utils/dom.js';
+  import { vectorSubtract, vectorUnit, vector3dCrossProduct, vectorCollapse, vectorExtend, vectorScale } from './src/operate/vector.js';
+  import { matrixMultiply, matrixMultiplyVector } from './src/operate/matrix.js';
   import {
     model2World,
     world2Camera,
     perspectiveTrans,
     backFaceCulling
   } from './src/operate/transform.js';
-  import {
-    normarlizeToDevice,
-    deviceRender
-  } from './src/utils/view.js';
 
   /******************** Initialize ********************/
+  react2Key(draw);
   // Get canvas
   const canvas = document.querySelector('#content');
+  const [height, width] = [canvas.height, canvas.width];
   const ctx = canvas.getContext('2d');
-  const [height, width] = [ctx.height, ctx.width];
+  ctx.fillRect(0, 0, width, height);
+  ctx.strokeStyle = 'green';
   const ticks = 16;
   // Bind slide with data
-  ['h', 'd', 'f'].forEach(item => bindSlider(item));
+  ['h', 'd', 'f'].forEach(item => bindSlider(item, draw));
   // Load all model options to menu
   const choose_model = document.querySelector('select.choose_model');
   loadMenu(choose_model);
   // Caluate N, U, V
   const cameraInit = (c, p_ref) => {
-    const camera_up = [0, 1, 0];
-    camera.N = vectorUnit(vectorSubtract(p_ref, c));
-    camera.U = vectorUnit(vector3dCrossProduct(camera.N, camera_up));
+    camera.N = vectorUnit(vectorSubtract(camera.pRef, camera.C));
+    camera.U = vectorUnit(vector3dCrossProduct(camera.N, camera.UP));
     camera.V = vector3dCrossProduct(camera.U, camera.N);
-    console.log(camera);
   };
-  cameraInit([3.0, 3.0, -3.0], [0.0, 0.0, 0.0]);
+  
 
   /******************** Render Model ********************/
   const renderBtn = document.querySelector('.render');
@@ -73,13 +78,43 @@
   });
 
   // Calculate model
-  const puerModel = (model) => backFaceCulling(perspectiveTrans(world2Camera(model2World(model))));
+  const pureModel = model => {
+    const combo = matrixMultiply(perspectiveTrans(), world2Camera());
+    return model.points.map(point => {
+      let t = matrixMultiplyVector(combo, vectorExtend(point));
+      return vectorCollapse(t);
+    });
+  };
+
+  const helper = (calcPoints, len) => {
+    let [xMax, yMax] = [-1, -1];
+    calcPoints.forEach(point => {
+      xMax = Math.max(xMax, Math.abs(point[0]));
+      yMax = Math.max(yMax, Math.abs(point[1]));
+    });
+    const factor = Math.floor(len / Math.max(xMax, yMax));
+    return calcPoints.map(point => [
+      point[0] * factor / 3 + Math.max(xMax, yMax) * factor / 2,
+      -point[1] * factor / 3 + Math.max(xMax, yMax) * factor / 2,
+    ]);
+  };
 
   // Render model
-  const viewModel = (height, width, ticks, ctx, model) => deviceRender(height, width, ticks, ctx, normarlizeToDevice(height, width, model));
-  const draw = () => {
-    viewModel(height, width, ticks, ctx, puerModel(model));
-    window.requestAnimationFrame(draw);
+  function draw() {
+    cameraInit([50, 50, 100], [0, 0, 0]);
+    const calcPoints = helper(pureModel(model), Math.min(width, height));
+    ctx.clearRect(0, 0, width, height);
+    ctx.fillRect(0, 0, width, height);
+    model.faces.forEach((face, index) => {
+      let n = face.length;
+      ctx.beginPath();
+      ctx.moveTo(calcPoints[face[0]][0], calcPoints[face[0]][1]);
+      for (let i = 1; i < n; i++) {
+        ctx.lineTo(calcPoints[face[i]][0], calcPoints[face[i]][1]);
+      }
+      ctx.closePath();
+      ctx.stroke();
+    });
   };
 </script>
 

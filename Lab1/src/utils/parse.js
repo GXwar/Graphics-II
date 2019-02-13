@@ -6,7 +6,6 @@ import model from '../configs/model.js';
  */
 export const parseFile = (data) => {
   let lines = data.match(/[^\r\n]+/g);
-  console.log(lines);
   let [num, pointsNum, facesNum] = lines[0].trim().split(/\s+/);
 
   // Cause in some file, there are just two number in first line
@@ -15,11 +14,16 @@ export const parseFile = (data) => {
     pointsNum = num;
   }
 
+  // load data to model
   model.pointsNum = parseInt(pointsNum, 10);
   model.facesNum = parseInt(facesNum, 10);
+  // here we clear these two arrays to refresh the object when load different model
+  model.points = [];
+  model.faces = [];
 
   for (let i = 1; i <= model.pointsNum; i++) {
     let [x, y, z] = lines[i].trim().split(/\s+/);
+    
     model.points.push([parseFloat(x), parseFloat(y), parseFloat(z)]);
   }
 

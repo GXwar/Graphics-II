@@ -63,7 +63,7 @@ export const vectorScale = (vector, n) => {
  */
 export const vectorUnit = (vector) => {
   return vectorScale(vector, 1 / vectorAbs(vector));
-}
+};
 
 /**
  * Cross Proudct of two 3d vector

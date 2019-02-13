@@ -18,7 +18,7 @@ export const matrixMultiply = (m1, m2) => {
   for (let i = 0; i < m; i++) {
     for (let j = 0; j < k; j++) {
       for (let t = 0; t < n; t++) {
-        m[i][j] += m1[i][t] * m2[t][j]
+        newMatrix[i][j] += m1[i][t] * m2[t][j]
       }
     }
   }

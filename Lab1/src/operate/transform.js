@@ -10,7 +10,7 @@ export const model2World = (model) => {
   };
 };
 
-export const world2Camera = (model) => {
+export const world2Camera = () => {
   const T = [
     [1, 0, 0, -camera.C[0]],
     [0, 1, 0, -camera.C[1]],
@@ -24,10 +24,7 @@ export const world2Camera = (model) => {
     [0          , 0          , 0          , 1]
   ];
   const RT = matrixMultiply(R, T);
-  return {
-    points: model.points.map(point3d => matrixMultiplyVector(RT, vectorExtend(point3d))),
-    faces: model.faces
-  };
+  return RT;
 };
 
 export const perspectiveTrans = (model) => {
@@ -39,10 +36,13 @@ export const perspectiveTrans = (model) => {
     [0, 0, a, -a*camera.d],
     [0, 0, 1, 0          ]
   ];
-  return {
-    points: model.points.map(item => vectorCollapse(matrixMultiplyVector(mPers, item))),
-    faces: model.faces
-  };
+  return mPers;
+  // return [
+  //   [1, 0, 0, 0],
+  //   [0, 1, 0, 0],
+  //   [0, 0, 1, 0],
+  //   [0, 0, 1, 0]
+  // ];
 };
 
 export const backFaceCulling = (model) => {
