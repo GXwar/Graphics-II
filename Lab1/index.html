@@ -1,20 +1,19 @@
 <html>
-
 <body>
-  <canvas id="content" width="100" heigh="100"></canvas>
+  <canvas id="content" width="500" height="500"></canvas>
   <div class="control-panel">
     Camera parameter:
     <div class="slidecontainer">
-      <input type="range" min="0.1" max="10" value="1" step="0.1" class="slider" id="C_h">
-      <p>h: <span id="V_C_h"></span></p>
+      <input id="h" type="range" min="0.1" max="10" value="1" step="0.1" class="slider">
+      <p>h: <span id="h_V"></span></p>
     </div>
     <div class="slidecontainer">
-      <input type="range" min="0.1" max="10" value="1" step="0.1" class="slider" id="C_d">
-      <p>d: <span id="V_C_d"></span></p>
+      <input id="d" type="range" min="0.1" max="10" value="1" step="0.1" class="slider">
+      <p>d: <span id="d_V"></span></p>
     </div>
     <div class="slidecontainer">
-      <input type="range" min="10" max="500" value="100" class="slider" id="C_f">
-      <p>f: <span id="V_C_f"></span></p>
+      <input id="f" type="range" min="10" max="500" value="100" class="slider">
+      <p>f: <span id="f_V"></span></p>
     </div>
 
     <select class="choose_model">
@@ -25,32 +24,63 @@
   </div>
 </body>
 <script type="module">
-  import { files } from './src/configs/constants.js';
-  import { readFile } from './src/utils/io.js';
-  import { parseFile } from './src/utils/parse.js';
+  import { render } from './src/utils/render.js';
+  import camera from './src/configs/camera.js';
+  import model from './src/configs/model.js';
+  import { bindSlider, loadMenu } from './src/utils/dom.js';
+  import { vectorSubtract, vectorUnit, vector3dCrossProduct } from './src/operate/vector.js';
+  import {
+    model2World,
+    world2Camera,
+    perspectiveTrans,
+    backFaceCulling
+  } from './src/operate/transform.js';
+  import {
+    normarlizeToDevice,
+    deviceRender
+  } from './src/utils/view.js';
 
-  // load all model options to menu
-  let choose_model = document.querySelector('select.choose_model');
-  files.forEach(file => {
-    let option = document.createElement('option');
-    option.setAttribute("value", file);
-    option.appendChild(document.createTextNode(file));
-    choose_model.appendChild(option);
-  });
+  /******************** Initialize ********************/
+  // Get canvas
+  const canvas = document.querySelector('#content');
+  const ctx = canvas.getContext('2d');
+  const [height, width] = [ctx.height, ctx.width];
+  const ticks = 16;
+  // Bind slide with data
+  ['h', 'd', 'f'].forEach(item => bindSlider(item));
+  // Load all model options to menu
+  const choose_model = document.querySelector('select.choose_model');
+  loadMenu(choose_model);
+  // Caluate N, U, V
+  const cameraInit = (c, p_ref) => {
+    const camera_up = [0, 1, 0];
+    camera.N = vectorUnit(vectorSubtract(p_ref, c));
+    camera.U = vectorUnit(vector3dCrossProduct(camera.N, camera_up));
+    camera.V = vector3dCrossProduct(camera.U, camera.N);
+    console.log(camera);
+  };
+  cameraInit([3.0, 3.0, -3.0], [0.0, 0.0, 0.0]);
 
-  // render model
-  let renderBtn = document.querySelector('.render');
+  /******************** Render Model ********************/
+  const renderBtn = document.querySelector('.render');
   renderBtn.addEventListener('click', () => {
-    let modelIndex = choose_model.selectedIndex;
-    let modelName = choose_model.options[modelIndex].value;
-    readFile(`./public/model/${modelName}.d.txt`)
-      .then(data => {
-        parseFile(data);
-      })
-      .catch(() => {
-        console.log('Load or parse file error');
-      });
+    const modelIndex = choose_model.selectedIndex;
+    if (modelIndex === 0) {
+      alert('Please select a model to render');
+    }
+    const modelName = choose_model.options[modelIndex].value;
+    render(`./public/model/${modelName}.d.txt`, draw);
   });
+
+  // Calculate model
+  const puerModel = (model) => backFaceCulling(perspectiveTrans(world2Camera(model2World(model))));
+
+  // Render model
+  const viewModel = (height, width, ticks, ctx, model) => deviceRender(height, width, ticks, ctx, normarlizeToDevice(height, width, model));
+  const draw = () => {
+    viewModel(height, width, ticks, ctx, puerModel(model));
+    window.requestAnimationFrame(draw);
+  };
 </script>
 
 </html>
