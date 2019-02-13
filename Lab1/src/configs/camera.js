@@ -1,7 +1,7 @@
 // Save the info of camera
 const camera = {
   h: 1,
-  d: 5,
+  d: 1,
   f: 10,
   C: [50, 50, 100],
   pRef: [0, 0, 0],

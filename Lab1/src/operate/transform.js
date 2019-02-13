@@ -46,7 +46,7 @@ export const perspectiveTrans = (model) => {
 };
 
 export const backFaceCulling = (points) => {
-  model.backFaceCullingFaces = model.faces.filter(x => vector3dCrossProduct(
+  model.cullingFaces = model.faces.filter(x => vector3dCrossProduct(
     vectorSubtract(points[x[1]], points[x[0]]),
     vectorSubtract(points[x[2]], points[x[1]])
   )[2] <= 0);

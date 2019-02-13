@@ -26,3 +26,7 @@
 .control-panel .title:first-of-type {
   margin-top: 0;
 }
+
+.back-face-culling {
+  margin-bottom: 15px;
+}
