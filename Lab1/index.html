@@ -26,7 +26,13 @@
         <input id="f" type="range" min="10" max="500" value="100" class="slider">
         <p>f: <span id="f_V"></span></p>
       </div>
-      Using w, a, s, d to move; i, j, k, l to rotate camera.
+      <div class="instruction">
+        <p class="title">3. Instruction</p>
+        <ul>
+          <li>Using mouse wheel to scale up or down the model</li>
+          <li>Using w, a, s, d to move object</li>
+        </ul>
+      </div>
     </div>
   </dvi>
 </body>
@@ -34,7 +40,7 @@
   import { render } from './src/utils/render.js';
   import camera from './src/configs/camera.js';
   import model from './src/configs/model.js';
-  import { bindSlider, loadMenu, react2Key } from './src/utils/dom.js';
+  import { bindSlider, loadMenu, reactToOperation } from './src/utils/dom.js';
   import { vectorSubtract, vectorUnit, vector3dCrossProduct, vectorCollapse, vectorExtend, vectorScale } from './src/operate/vector.js';
   import { matrixMultiply, matrixMultiplyVector } from './src/operate/matrix.js';
   import {
@@ -45,7 +51,7 @@
   } from './src/operate/transform.js';
 
   /******************** Initialize ********************/
-  react2Key(draw);
+  reactToOperation(draw);
   // Get canvas
   const canvas = document.querySelector('#content');
   const [height, width] = [canvas.height, canvas.width];
@@ -59,7 +65,7 @@
   const choose_model = document.querySelector('select.choose_model');
   loadMenu(choose_model);
   // Caluate N, U, V
-  const cameraInit = (c, p_ref) => {
+  const cameraInit = () => {
     camera.N = vectorUnit(vectorSubtract(camera.pRef, camera.C));
     camera.U = vectorUnit(vector3dCrossProduct(camera.N, camera.UP));
     camera.V = vector3dCrossProduct(camera.U, camera.N);
@@ -86,26 +92,30 @@
     });
   };
 
+  let factor;
+  let [xMax, yMax] = [-1, -1];
   const helper = (calcPoints, len) => {
-    let [xMax, yMax] = [-1, -1];
-    calcPoints.forEach(point => {
-      xMax = Math.max(xMax, Math.abs(point[0]));
-      yMax = Math.max(yMax, Math.abs(point[1]));
-    });
-    const factor = Math.floor(len / Math.max(xMax, yMax));
+    if (!factor) {
+      calcPoints.forEach(point => {
+        xMax = Math.max(xMax, Math.abs(point[0]));
+        yMax = Math.max(yMax, Math.abs(point[1]));
+      });
+      factor = Math.floor(len / Math.max(xMax, yMax));
+    }
     return calcPoints.map(point => [
       point[0] * factor / 3 + Math.max(xMax, yMax) * factor / 2,
-      -point[1] * factor / 3 + Math.max(xMax, yMax) * factor / 2,
+      -point[1] * factor / 3 + Math.max(xMax, yMax) * factor / 2
     ]);
   };
 
   // Render model
   function draw() {
-    cameraInit([50, 50, 100], [0, 0, 0]);
-    const calcPoints = helper(pureModel(model), Math.min(width, height));
+    let calcPoints = pureModel(model);
+    backFaceCulling(calcPoints);
+    calcPoints = helper(pureModel(model), Math.min(width, height));
     ctx.clearRect(0, 0, width, height);
     ctx.fillRect(0, 0, width, height);
-    model.faces.forEach((face, index) => {
+    model.backFaceCullingFaces.forEach((face, index) => {
       let n = face.length;
       ctx.beginPath();
       ctx.moveTo(calcPoints[face[0]][0], calcPoints[face[0]][1]);
