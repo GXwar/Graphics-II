@@ -1,7 +1,7 @@
 /******************** DOM OPERATION ********************/
 import camera from '../configs/camera.js';
 import { files } from '../configs/constants.js';
-import { vectorAdd, vectorScale, vectorUnit, vector3dCrossProduct } from '../operate/vector.js';
+import { vectorAdd, vectorScale, vectorUnit, vector3dCrossProduct, vectorSubtract } from '../operate/vector.js';
 import { matrixMultiplyVector } from '../operate/matrix.js';
 
 /**
@@ -37,6 +37,11 @@ export const loadMenu = (selectDOM) => {
 /**
  * Bind operation to control the final effect
  */
+const cameraInit = () => {
+  camera.N = vectorUnit(vectorSubtract(camera.pRef, camera.C));
+  camera.U = vectorUnit(vector3dCrossProduct(camera.N, camera.UP));
+  camera.V = vector3dCrossProduct(camera.U, camera.N);
+};
 const Rx = (alpha) => {
   return [[1, 0, 0],
    [0, Math.cos(alpha), -Math.sin(alpha)],
@@ -81,27 +86,24 @@ export const reactToOperation = (draw) => {
         draw();
         break;
       case 'i':
-        camera.V = vectorUnit(matrixMultiplyVector(Rx(-degreeStepLen), camera.V));
-        camera.N = vectorUnit(vector3dCrossProduct(camera.V, camera.U));
-        camera.U = vectorUnit(vector3dCrossProduct(camera.N, camera.V));
+        camera.C[1] -= 1;
+        cameraInit();
+        draw();
         draw();
         break;
-      case 'k':
-        camera.V = vectorUnit(matrixMultiplyVector(Rx(degreeStepLen), camera.V));
-        camera.N = vectorUnit(vector3dCrossProduct(camera.V, camera.U));
-        camera.U = vectorUnit(vector3dCrossProduct(camera.N, camera.V));
+      case 'k': 
+        camera.C[1] += 1;
+        cameraInit();
         draw();
         break;
       case 'j':
-        camera.N = vectorUnit(matrixMultiplyVector(Ry(-degreeStepLen), camera.N));
-        camera.U = vectorUnit(vector3dCrossProduct(camera.N, camera.V));
-        camera.V = vectorUnit(vector3dCrossProduct(camera.U, camera.N));
+        camera.C[0] += 1;
+        cameraInit();
         draw();
         break;
       case 'l':
-        camera.N = vectorUnit(matrixMultiplyVector(Ry(degreeStepLen), camera.N));
-        camera.U = vectorUnit(vector3dCrossProduct(camera.N, camera.V));
-        camera.V = vectorUnit(vector3dCrossProduct(camera.U, camera.N));
+        camera.C[0] -= 1;
+        cameraInit();
         draw();
         break;
       default:
