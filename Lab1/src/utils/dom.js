@@ -1,14 +1,14 @@
 /******************** DOM OPERATION ********************/
-import camera from '../configs/camera.js';
+import model from '../configs/model.js';
+import camera, { cameraInit } from '../configs/camera.js';
 import { files } from '../configs/constants.js';
 import { vectorAdd, vectorScale, vectorUnit, vector3dCrossProduct, vectorSubtract } from '../operate/vector.js';
-import { matrixMultiplyVector } from '../operate/matrix.js';
 
 /**
  * Bind the value of slider with camera setting
  * @param {String} name 
  */
-export const bindSlider = (name, callback) => {
+export const bindSlider = (name, operation) => {
   const slider = document.querySelector(`#${name}`);
   const sliderText = document.querySelector(`#${name}_V`);
   slider.value = camera[name];
@@ -17,7 +17,7 @@ export const bindSlider = (name, callback) => {
     camera[name] = this.value;
     sliderText.innerHTML = this.value;
     camera.pRef[0] -= 10;
-    callback();
+    operation();
   });
 };
 
@@ -33,31 +33,28 @@ export const loadMenu = (selectDOM) => {
   });
 };
 
+/**
+ * Bind selected DOM element with back face culling
+ * @param {String} name
+ * @param {Function} operation 
+ */
+export const backFaceCullingDOM = (name, operation) => {
+  const backFaceDIV = document.querySelector(`.${name}`);
+  backFaceDIV.addEventListener('click', function(e) {
+    if (e.target && e.target.nodeName.toUpperCase() == "INPUT") {
+      model.backFaceCulling = e.target.value === '1';
+      operation();
+    };
+  });
+};
 
 /**
  * Bind operation to control the final effect
  */
-const cameraInit = () => {
-  camera.N = vectorUnit(vectorSubtract(camera.pRef, camera.C));
-  camera.U = vectorUnit(vector3dCrossProduct(camera.N, camera.UP));
-  camera.V = vector3dCrossProduct(camera.U, camera.N);
-};
-const Rx = (alpha) => {
-  return [[1, 0, 0],
-   [0, Math.cos(alpha), -Math.sin(alpha)],
-   [0, Math.sin(alpha), Math.cos(alpha)]
-  ];
-}
-const Ry = (beta) => {
-  return [[Math.cos(beta), 0, Math.sin(beta)],
-   [0, 1, 0],
-   [-Math.sin(beta), 0, Math.cos(beta)]
-  ];
-};
-const stepLen = 1;
-const degreeStepLen = Math.PI*2/180;
-export const reactToOperation = (draw) => {
-  const canvas = document.querySelector('#content');
+const objectLen = 1;
+const cameraLen = 2;
+export const reactToOperation = (name, draw) => {
+  const canvas = document.querySelector(`#${name}`);
   // zooming the model
   canvas.addEventListener('mousewheel', function(e) {
     if (e.wheelDelta > 0) {
@@ -70,39 +67,39 @@ export const reactToOperation = (draw) => {
   document.addEventListener('keypress', function(e) {
     switch (e.key) {
       case 'w': 
-        camera.C = vectorAdd(camera.C, vectorScale(camera.V, -stepLen));
+        camera.C = vectorAdd(camera.C, vectorScale(camera.V, -objectLen));
         draw();
         break;
       case 's':
-        camera.C = vectorAdd(camera.C, vectorScale(camera.V, stepLen));
+        camera.C = vectorAdd(camera.C, vectorScale(camera.V, objectLen));
         draw();
         break;
       case 'a':
-        camera.C = vectorAdd(camera.C, vectorScale(camera.U, stepLen));
+        camera.C = vectorAdd(camera.C, vectorScale(camera.U, objectLen));
         draw();
         break;
       case 'd':
-        camera.C = vectorAdd(camera.C, vectorScale(camera.U, -stepLen));
+        camera.C = vectorAdd(camera.C, vectorScale(camera.U, -objectLen));
         draw();
         break;
       case 'i':
-        camera.C[1] -= 1;
+        camera.C[1] -= cameraLen;
         cameraInit();
         draw();
         draw();
         break;
       case 'k': 
-        camera.C[1] += 1;
+        camera.C[1] += cameraLen;
         cameraInit();
         draw();
         break;
       case 'j':
-        camera.C[0] += 1;
+        camera.C[0] += cameraLen;
         cameraInit();
         draw();
         break;
       case 'l':
-        camera.C[0] -= 1;
+        camera.C[0] -= cameraLen;
         cameraInit();
         draw();
         break;

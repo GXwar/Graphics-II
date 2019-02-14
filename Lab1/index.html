@@ -50,49 +50,31 @@
 </body>
 <script type="module">
   import { render } from './src/utils/render.js';
-  import camera from './src/configs/camera.js';
+  import camera, { cameraInit } from './src/configs/camera.js';
   import model from './src/configs/model.js';
-  import { bindSlider, loadMenu, reactToOperation } from './src/utils/dom.js';
-  import { vectorSubtract, vectorUnit, vector3dCrossProduct, vectorCollapse, vectorExtend, vectorScale } from './src/operate/vector.js';
-  import { matrixMultiply, matrixMultiplyVector } from './src/operate/matrix.js';
-  import {
-    model2World,
-    world2Camera,
-    perspectiveTrans,
-    backFaceCulling
-  } from './src/operate/transform.js';
+  import { calcModel, backFaceCulling } from './src/operate/transform.js';
+  import { 
+    bindSlider, 
+    loadMenu, 
+    backFaceCullingDOM, 
+    reactToOperation } from './src/utils/dom.js';
 
   /******************** Initialize ********************/
-  reactToOperation(draw);
-  // Get canvas
+  // Get canvas ready
   const canvas = document.querySelector('#content');
   const [height, width] = [canvas.height, canvas.width];
   const ctx = canvas.getContext('2d');
   ctx.fillRect(0, 0, width, height);
   ctx.strokeStyle = 'green';
-  const ticks = 16;
-  // Bind slide with data
-  ['h', 'd', 'f'].forEach(item => bindSlider(item, draw));
   // Load all model options to menu
   const choose_model = document.querySelector('select.choose_model');
   loadMenu(choose_model);
-  // Caluate N, U, V
-  const cameraInit = () => {
-    camera.N = vectorUnit(vectorSubtract(camera.pRef, camera.C));
-    camera.U = vectorUnit(vector3dCrossProduct(camera.N, camera.UP));
-    camera.V = vector3dCrossProduct(camera.U, camera.N);
-  };
-  cameraInit();
+  // Bind select button with back face culling
+  backFaceCullingDOM('back-face-culling', draw);
+  // Get three slides ready binding with h, d, f parameter
+  ['h', 'd', 'f'].forEach(item => bindSlider(item, draw));
 
-  const backFaceDIV = document.querySelector('.back-face-culling');
-  backFaceDIV.addEventListener('click', function(e) {
-    if (e.target && e.target.nodeName.toUpperCase() == "INPUT") {
-      model.backFaceCulling = e.target.value === '1';
-      draw();
-    };
-  });
-
-  /******************** Render Model ********************/
+  // Bind render button with load file and render opertion
   const renderBtn = document.querySelector('.render');
   renderBtn.addEventListener('click', () => {
     const modelIndex = choose_model.selectedIndex;
@@ -103,18 +85,18 @@
     render(`./public/model/${modelName}.d.txt`, draw);
   });
 
-  // Calculate model
-  const pureModel = model => {
-    const combo = matrixMultiply(perspectiveTrans(), world2Camera());
-    return model.points.map(point => {
-      let t = matrixMultiplyVector(combo, vectorExtend(point));
-      return vectorCollapse(t);
-    });
-  };
+  // Binding
+  reactToOperation('content', draw);
+  // Calculate N, U, V vector
+  cameraInit();
 
+  /******************** Load Model ********************/
+  /**
+   * Resize the model and adjust to suitable position
+   */
   let factor;
   let [xMax, yMax] = [-1, -1];
-  const helper = (calcPoints, len) => {
+  const adjustSizeAndPosition = (calcPoints, len) => {
     if (!factor) {
       calcPoints.forEach(point => {
         xMax = Math.max(xMax, Math.abs(point[0]));
@@ -122,20 +104,26 @@
       });
       factor = Math.floor(len / Math.max(xMax, yMax));
     }
-    console.log(factor);
     return calcPoints.map(point => [
       point[0] * factor / 3 + Math.max(xMax, yMax) * factor / 2,
       -point[1] * factor / 3 + Math.max(xMax, yMax) * factor / 2
     ]);
   };
 
-  // Render model
+  /**
+   * Draw model on the canvas
+   */
   function draw() {
-    let calcPoints = pureModel(model);
+    // transform points from virtual world to 2d screen
+    let calcPoints = calcModel(model);
+    // back face culling, save it to model object
     backFaceCulling(calcPoints);
-    calcPoints = helper(calcPoints, Math.min(width, height));
+    // move model to suitable position due to canvas' coordinate
+    calcPoints = adjustSizeAndPosition(calcPoints, Math.min(width, height));
+    // clear canvas to redraw
     ctx.clearRect(0, 0, width, height);
     ctx.fillRect(0, 0, width, height);
+    // depend on user's choice to back face culling or not
     let faces = model.backFaceCulling ? model.cullingFaces : model.faces;
     faces.forEach((face, index) => {
       let n = face.length;

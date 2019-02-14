@@ -37,12 +37,6 @@ export const perspectiveTrans = (model) => {
     [0, 0, 1, 0          ]
   ];
   return mPers;
-  // return [
-  //   [1, 0, 0, 0],
-  //   [0, 1, 0, 0],
-  //   [0, 0, 1, 0],
-  //   [0, 0, 1, 0]
-  // ];
 };
 
 export const backFaceCulling = (points) => {
@@ -50,4 +44,13 @@ export const backFaceCulling = (points) => {
     vectorSubtract(points[x[1]], points[x[0]]),
     vectorSubtract(points[x[2]], points[x[1]])
   )[2] <= 0);
+};
+
+// Calculate model
+export const calcModel = model => {
+  const combo = matrixMultiply(perspectiveTrans(), world2Camera());
+  return model.points.map(point => {
+    let t = matrixMultiplyVector(combo, vectorExtend(point));
+    return vectorCollapse(t);
+  });
 };
