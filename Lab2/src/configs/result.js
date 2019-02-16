@@ -1,30 +1,35 @@
 /**
- * Resize the model and adjust to suitable position
- */
-let factor;
-let [xMax, yMax] = [-1, -1];
-export const adjustSizeAndPosition = (calcPoints, len) => {
-  if (!factor) {
-    calcPoints.forEach(point => {
-      xMax = Math.max(xMax, Math.abs(point[0]));
-      yMax = Math.max(yMax, Math.abs(point[1]));
-    });
-    factor = Math.floor(len / Math.max(xMax, yMax));
-  }
-  return calcPoints.map(point => [
-    point[0] * factor / 3 + Math.max(xMax, yMax) * factor / 2,
-    -point[1] * factor / 3 + Math.max(xMax, yMax) * factor / 2
-  ]);
-};
-
-/**
  * Result 
  */
 let result = {
-  // A set used to save back face index
-  backFaceSet: new Set(),
   // Back-face culling or not
   cullingPreference: false,
+  // A set used to save back face index
+  backFaceSet: new Set(),
+  // transformed point
+  calcPoints: [],
+  // rendering
+  m: 768,
+  n: 768,
+  pixelBuffer: [],
+  zBuffer: [],
+  edgeTable: [],
+  face_color_r_buffer: [],
+  face_color_g_buffer: [],
+  face_color_b_buffer: [],
+  // Edge Table
+  edgeTable: []
 };
+
+// Initialize refresh buffer, 3 channels
+// Initialize zBuffer, the value is between 0 ~ 1, double */
+// for (let i = 0; i < result.m; i++) {
+//   result.pixelBuffer.push([]);
+//   result.zBuffer.push([]);
+//   for (let j = 0; j < result.n; j++) {
+//     result.pixelBuffer[i][j] = Array.from({length: 3}, _ => 0);
+//     result.zBuffer[i][j] = 1;
+//   }
+// }
 
 export default result;

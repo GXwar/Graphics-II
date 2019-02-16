@@ -39,7 +39,7 @@ const perspectiveTrans = (model) => {
  * Note: Some the polygons are denoted in anti-clockwise order
  */
 export const backFaceCulling = () => {
-  model.backFaceSet = new Set();
+  result.backFaceSet = new Set();
   model.faces.forEach((x, index) => {
     if (vector3dDotProduct(vector3dCrossProduct(vectorSubtract(model.points[x[0]], model.points[x[1]]), vectorSubtract(model.points[x[1]], model.points[x[2]])), 
         vectorSubtract(camera.C, model.points[x[0]])) > 0) {
