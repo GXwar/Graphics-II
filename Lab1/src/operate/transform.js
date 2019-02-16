@@ -1,16 +1,10 @@
 import camera from '../configs/camera.js';
 import model from '../configs/model.js';
-import { vectorExtend, vectorCollapse, vectorSubtract, vector3dCrossProduct } from './vector.js';
+import result from '../configs/result.js';
+import { vectorExtend, vectorCollapse, vectorSubtract, vector3dCrossProduct, vector3dDotProduct } from './vector.js';
 import { matrixMultiply, matrixMultiplyVector } from './matrix.js';
 
-export const model2World = (model) => {
-  return {
-    points: model.points,
-    faces: model.faces
-  };
-};
-
-export const world2Camera = () => {
+const world2Camera = () => {
   const T = [
     [1, 0, 0, -camera.C[0]],
     [0, 1, 0, -camera.C[1]],
@@ -27,7 +21,7 @@ export const world2Camera = () => {
   return RT;
 };
 
-export const perspectiveTrans = (model) => {
+const perspectiveTrans = (model) => {
   const a = camera.f / (camera.f - camera.d);
   const b = camera.d / camera.h;
   const mPers = [
@@ -39,11 +33,19 @@ export const perspectiveTrans = (model) => {
   return mPers;
 };
 
-export const backFaceCulling = (points) => {
-  model.cullingFaces = model.faces.filter(x => vector3dCrossProduct(
-    vectorSubtract(points[x[1]], points[x[0]]),
-    vectorSubtract(points[x[2]], points[x[1]])
-  )[2] <= 0);
+/**
+ * Back-face culling
+ * Visible if Np dot product N > 0
+ * Note: Some the polygons are denoted in anti-clockwise order
+ */
+export const backFaceCulling = () => {
+  model.backFaceSet = new Set();
+  model.faces.forEach((x, index) => {
+    if (vector3dDotProduct(vector3dCrossProduct(vectorSubtract(model.points[x[0]], model.points[x[1]]), vectorSubtract(model.points[x[1]], model.points[x[2]])), 
+        vectorSubtract(camera.C, model.points[x[0]])) > 0) {
+      result.backFaceSet.add(index);
+    }
+  });
 };
 
 // Calculate model

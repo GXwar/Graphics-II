@@ -1,8 +1,8 @@
 /******************** DOM OPERATION ********************/
-import model from '../configs/model.js';
 import camera, { cameraInit } from '../configs/camera.js';
 import { files } from '../configs/constants.js';
-import { vectorAdd, vectorScale, vectorUnit, vector3dCrossProduct, vectorSubtract } from '../operate/vector.js';
+import result from '../configs/result.js';
+import { vectorAdd, vectorScale } from '../operate/vector.js';
 
 /**
  * Bind the value of slider with camera setting
@@ -38,12 +38,12 @@ export const loadMenu = (selectDOM) => {
  * @param {String} name
  * @param {Function} operation 
  */
-export const backFaceCullingDOM = (name, operation) => {
+export const backFaceCullingDOM = (name, draw) => {
   const backFaceDIV = document.querySelector(`.${name}`);
   backFaceDIV.addEventListener('click', function(e) {
     if (e.target && e.target.nodeName.toUpperCase() == "INPUT") {
-      model.backFaceCulling = e.target.value === '1';
-      operation();
+      result.cullingPreference = e.target.value === '1';
+      draw();
     };
   });
 };
