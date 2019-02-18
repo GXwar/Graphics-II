@@ -42,7 +42,7 @@ export const backFaceCulling = () => {
   result.backFaceSet = new Set();
   model.faces.forEach((x, index) => {
     if (vector3dDotProduct(vector3dCrossProduct(vectorSubtract(model.points[x[0]], model.points[x[1]]), vectorSubtract(model.points[x[1]], model.points[x[2]])), 
-        vectorSubtract(camera.C, model.points[x[0]])) > 0) {
+        vectorSubtract(camera.C, model.points[x[0]])) >= 0) {
       result.backFaceSet.add(index);
     }
   });

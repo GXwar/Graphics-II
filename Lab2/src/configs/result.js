@@ -9,8 +9,6 @@ let result = {
   // transformed point
   calcPoints: [],
   // rendering
-  m: 768,
-  n: 768,
   pixelBuffer: [],
   zBuffer: [],
   edgeTable: [],
@@ -18,18 +16,9 @@ let result = {
   face_color_g_buffer: [],
   face_color_b_buffer: [],
   // Edge Table
-  edgeTable: []
+  edgeTable: [],
+  // Active Edge Table
+  activeEdgeTable: []
 };
-
-// Initialize refresh buffer, 3 channels
-// Initialize zBuffer, the value is between 0 ~ 1, double */
-// for (let i = 0; i < result.m; i++) {
-//   result.pixelBuffer.push([]);
-//   result.zBuffer.push([]);
-//   for (let j = 0; j < result.n; j++) {
-//     result.pixelBuffer[i][j] = Array.from({length: 3}, _ => 0);
-//     result.zBuffer[i][j] = 1;
-//   }
-// }
 
 export default result;

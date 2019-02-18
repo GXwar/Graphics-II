@@ -3,6 +3,5 @@ export const files = [
   'atc',
   'ball',
   'cow',
-  'house',
   'knight'
 ];

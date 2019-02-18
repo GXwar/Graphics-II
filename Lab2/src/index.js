@@ -1,5 +1,4 @@
 import { cameraInit } from './configs/camera.js';
-
 import loadFile from './utils/loadFile.js';
 import draw from './utils/draw.js';
 import { 
@@ -7,6 +6,8 @@ import {
   loadMenu,
   backFaceCullingDOM,
   reactToOperation } from './utils/dom.js';
+import result from './configs/result.js';
+
 
 /******************** Initialize DOM ********************/
 // Get canvas ready
@@ -40,37 +41,5 @@ renderBtn.addEventListener('click', () => {
 reactToOperation('content', drawCtx);
 // Calculate N, U, V vector
 cameraInit();
-
-
-const random = () => Math.floor(Math.random() * 256);
-
-const scanConversion = () => {
-  // clear before
-  result.pixelBuffer = [];
-  result.zBuffer = [];
-  for (let i = 0; i < result.m; i++) {
-    result.pixelBuffer.push([]);
-    result.zBuffer.push(Array.from({length: result.n}, _ => 1));
-    for (let j = 0; j < result.n; j++) {
-      result.pixelBuffer[i][j] = Array.from({length: 3}, _ => 0);
-    }
-  }
-  
-  // scan conversion for each face
-  for (let i = 0; i < model.facesNum; i++) {
-    // only give color when first time render
-    if (result.face_color_r_buffer.size() == i) {
-      result.face_color_r_buffer.push(random());
-      result.face_color_g_buffer.push(random());
-      result.face_color_b_buffer.push(random());
-    }
-    // do not consider back face
-    if (result.backFaceSet.has(i)) continue;
-
-    const face = model.faces[i];
-    // Clear this face's edge table and rebuild it
-
-    for (let j = 0; j < face.length; j++) {
-    }
-  }
-}
+result.width = width;
+result.height = height;
