@@ -6,7 +6,7 @@ import { vectorAdd, vectorScale } from '../operate/vector';
 /**
  * Load menu
  */
-export const loadMenu = (selectDOM) => {
+export const loadMenu = (selectDOM: HTMLSelectElement) => {
   files.forEach(file => {
     const option = document.createElement('option');
     option.setAttribute("value", file);
@@ -19,9 +19,9 @@ export const loadMenu = (selectDOM) => {
  * Bind the value of slider with camera setting
  * @param {String} name 
  */
-export const bindSlider = (name, draw) => {
-  const slider: HTMLInputElement = document.querySelector(`#${name}`);
-  const sliderText = document.querySelector(`#${name}_V`);
+export const bindSlider = (name: string, draw: Function) => {
+  const slider: HTMLInputElement = <HTMLInputElement>document.querySelector(`#${name}`);
+  const sliderText: HTMLSpanElement = <HTMLSpanElement>document.querySelector(`#${name}_V`);
   slider.value = camera[name];
   sliderText.innerHTML = camera[name];
   slider.addEventListener('change', function() {
@@ -37,8 +37,7 @@ export const bindSlider = (name, draw) => {
  */
 const objectLen = 1;
 const cameraLen = 2;
-export const reactToOperation = (name, draw) => {
-  const canvas = document.querySelector(`#${name}`);
+export const reactToOperation = (canvas: HTMLCanvasElement, draw: Function) => {
   // zooming the model
   canvas.addEventListener('mousewheel', function(e: any) {
     if (e.wheelDelta > 0) {

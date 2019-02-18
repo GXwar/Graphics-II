@@ -49,7 +49,7 @@ export const backFaceCulling = () => {
 };
 
 // Calculate model
-export const calcModel = model => {
+export const calcModel = () => {
   const combo = matrixMultiply(perspectiveTrans(), world2Camera());
   return model.points.map(point => {
     let t = matrixMultiplyVector(combo, vectorExtend(point));

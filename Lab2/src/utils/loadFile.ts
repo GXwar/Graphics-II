@@ -4,8 +4,8 @@ import model from '../configs/model';
  * Parse the data from the .d file
  * @param {*} data 
  */
-const parseFile = (data) => {
-  let lines = data.match(/[^\r\n]+/g);
+const parseFile = (data: string) => {
+  let lines: string = <any>data.match(/[^\r\n]+/g);
   let [num, pointsNum, facesNum] = lines[0].trim().split(/\s+/);
 
   // Cause in some file, there are just two number in first line
@@ -29,7 +29,7 @@ const parseFile = (data) => {
   for (let i = model.pointsNum + 1; i <= model.pointsNum + model.facesNum; i++) {
     let [num, ...res] = lines[i].trim().split(/\s+/);
     if (res.length > 2) {
-      model.faces.push(res.map(x => parseInt(x) - 1));
+      model.faces.push(res.map((x: any) => parseInt(x) - 1));
     }
   }
 };
@@ -39,7 +39,7 @@ const parseFile = (data) => {
  * @param {String} filePath 
  * @param {Function} callback 
  */
-const readFile = (filePath) => {
+const readFile = (filePath: string) => {
   return new Promise((res, rej) => {
     let xhr = new XMLHttpRequest();
     xhr.open('GET', filePath, true);
@@ -60,10 +60,10 @@ const readFile = (filePath) => {
  * Load and render selected model
  * @param {String} filePath 
  */
-const loadFile = (filePath, draw) => {
+const loadFile = (filePath: string, draw: Function) => {
   // load model
   readFile(filePath)
-    .then(data => {
+    .then((data: string) => {
       parseFile(data);
       draw();
     })

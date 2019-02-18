@@ -1,6 +1,19 @@
 import { vectorSubtract, vectorUnit, vector3dCrossProduct } from '../operate/vector';
-// Save the info of camera
-const camera = {
+
+interface CameraObject {
+  h: number,
+  d: number,
+  f: number,
+  C: Array<number>,
+  pRef: Array<number>,
+  UP: Array<number>,
+  N: Array<number>,
+  U: Array<number>,
+  V: Array<number>,
+  [key:string]: any
+};
+
+const camera: CameraObject = {
   h: 1,
   d: 1,
   f: 1000,
@@ -15,10 +28,11 @@ const camera = {
 /**
  * Calculate N, U, V by camera position
  */
-export const cameraInit = () => {
+const cameraInit = (): void => {
   camera.N = vectorUnit(vectorSubtract(camera.pRef, camera.C));
   camera.U = vectorUnit(vector3dCrossProduct(camera.N, camera.UP));
   camera.V = vector3dCrossProduct(camera.U, camera.N);
 };
 
 export default camera;
+export { cameraInit };

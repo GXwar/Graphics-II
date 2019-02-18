@@ -1,13 +1,14 @@
 /******************** FILL PIXELS ********************/
 import model from '../configs/model';
 import result from '../configs/result';
-import EdgeTableElement from '../obj/EdgeTableElement';
+import { EdgeTableElement } from '../obj/EdgeTableElement';
 
 // get a random integer in [0, 255]
 const random = () => Math.floor(Math.random() * 256);
 // convert 2d point to canvas point
-const toPixel = (value, shortten = false) => Math.floor((value + 1) * result.height / 2) - (shortten ? 1 : 0);
-const toFloatPixel = (value) => (value + 1) * result.height / 2;
+const toPixel = (value: number, shortten: boolean = false): number => 
+                Math.floor((value + 1) * result.height / 2) - (shortten ? 1 : 0);
+const toFloatPixel = (value: number): number => (value + 1) * result.height / 2;
 
 // reset pixel buffer and z buffer
 const bufferReset = () => {
@@ -44,7 +45,7 @@ export const bufferInit = () => {
  * 2. Find the start and end of the span
  * 3. Rely on scanline and pixel coherence to linearly interpolate (between scanlines and between pixels)
  */
-const addEdgeToET = (lowerPoint, upperPoint) => {
+const addEdgeToET = (lowerPoint: Array<number>, upperPoint: Array<number>) => {
   // ignore horizontal edge and out of range point
   if (toPixel(lowerPoint[1]) === toPixel(upperPoint[1])
       || lowerPoint[1] > 1 || lowerPoint[1] < -1) return;
@@ -62,7 +63,7 @@ const addEdgeToET = (lowerPoint, upperPoint) => {
 };
 
 // Calculation of z
-const calcZ = (edge, ys) => edge.yMax === edge.yStart ? edge.zUpper : 
+const calcZ = (edge: EdgeTableElement, ys: number) => edge.yMax === edge.yStart ? edge.zUpper : 
                         edge.zUpper - (edge.zUpper - edge.zLower) * (edge.yMax - ys) / (edge.yMax - edge.yStart);
 
 const scanConversion = () => {

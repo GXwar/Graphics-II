@@ -1,7 +1,9 @@
 // data files to be loaded
-export const files = [
+const files: Array<string> = [
   'atc',
   'ball',
   'cow',
   'knight'
 ];
+
+export { files };

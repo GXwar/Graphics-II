@@ -10,11 +10,11 @@ import scanConversion, { bufferInit } from './fillPixel';
  * @param {Canvas' width} width 
  * @param {Canvas' height} height 
  */
-const draw = (ctx, width, height) => () => {
+const draw = (ctx: CanvasRenderingContext2D, width: number, height: number) => () => {
   // back face culling, save it to model object
   backFaceCulling();
   // transform points from virtual world to 2d screen
-  result.calcPoints = calcModel(model);
+  result.calcPoints = calcModel();
   // z-buffer algorithm
   bufferInit();
   scanConversion();
