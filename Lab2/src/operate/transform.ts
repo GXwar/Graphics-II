@@ -1,8 +1,8 @@
-import camera from '../configs/camera.js';
-import model from '../configs/model.js';
-import result from '../configs/result.js';
-import { vectorExtend, vectorCollapse, vectorSubtract, vector3dCrossProduct, vector3dDotProduct } from './vector.js';
-import { matrixMultiply, matrixMultiplyVector } from './matrix.js';
+import camera from '../configs/camera';
+import model from '../configs/model';
+import result from '../configs/result';
+import { vectorExtend, vectorCollapse, vectorSubtract, vector3dCrossProduct, vector3dDotProduct } from './vector';
+import { matrixMultiply, matrixMultiplyVector } from './matrix';
 
 const world2Camera = () => {
   const T = [
@@ -21,7 +21,7 @@ const world2Camera = () => {
   return RT;
 };
 
-const perspectiveTrans = (model) => {
+const perspectiveTrans = () => {
   const a = camera.f / (camera.f - camera.d);
   const b = camera.d / camera.h;
   const mPers = [

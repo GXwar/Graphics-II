@@ -7,9 +7,10 @@ let result = {
   // transformed point
   calcPoints: [],
   // rendering
+  width: 0,
+  height: 0,
   pixelBuffer: [],
   zBuffer: [],
-  edgeTable: [],
   face_color_r_buffer: [],
   face_color_g_buffer: [],
   face_color_b_buffer: [],

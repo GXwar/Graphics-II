@@ -1,4 +1,4 @@
-import { vectorSubtract, vectorUnit, vector3dCrossProduct } from '../operate/vector.js';
+import { vectorSubtract, vectorUnit, vector3dCrossProduct } from '../operate/vector';
 // Save the info of camera
 const camera = {
   h: 1,

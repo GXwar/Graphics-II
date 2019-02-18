@@ -1,12 +1,12 @@
 /******************** FILL PIXELS ********************/
-import model from '../configs/model.js';
-import result from '../configs/result.js';
-import EdgeTableElement from '../obj/EdgeTableElement.js';
+import model from '../configs/model';
+import result from '../configs/result';
+import EdgeTableElement from '../obj/EdgeTableElement';
 
 // get a random integer in [0, 255]
 const random = () => Math.floor(Math.random() * 256);
 // convert 2d point to canvas point
-const toPixel = (value, shortten) => Math.floor((value + 1) * result.height / 2) - (shortten ? 1 : 0);
+const toPixel = (value, shortten = false) => Math.floor((value + 1) * result.height / 2) - (shortten ? 1 : 0);
 const toFloatPixel = (value) => (value + 1) * result.height / 2;
 
 // reset pixel buffer and z buffer

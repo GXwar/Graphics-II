@@ -1,8 +1,8 @@
 /******************** DRAW IMAGE ********************/
-import model from '../configs/model.js';
-import result from '../configs/result.js';
-import { calcModel, backFaceCulling } from '../operate/transform.js';
-import scanConversion, { bufferInit } from './fillPixel.js';
+import model from '../configs/model';
+import result from '../configs/result';
+import { calcModel, backFaceCulling } from '../operate/transform';
+import scanConversion, { bufferInit } from './fillPixel';
 
 /**
  * Draw model on the canvas

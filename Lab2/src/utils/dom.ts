@@ -1,7 +1,7 @@
 /******************** DOM OPERATION ********************/
-import camera, { cameraInit } from '../configs/camera.js';
-import { files } from '../configs/constants.js';
-import { vectorAdd, vectorScale } from '../operate/vector.js';
+import camera, { cameraInit } from '../configs/camera';
+import { files } from '../configs/constants';
+import { vectorAdd, vectorScale } from '../operate/vector';
 
 /**
  * Load menu
@@ -20,7 +20,7 @@ export const loadMenu = (selectDOM) => {
  * @param {String} name 
  */
 export const bindSlider = (name, draw) => {
-  const slider = document.querySelector(`#${name}`);
+  const slider: HTMLInputElement = document.querySelector(`#${name}`);
   const sliderText = document.querySelector(`#${name}_V`);
   slider.value = camera[name];
   sliderText.innerHTML = camera[name];
@@ -40,7 +40,7 @@ const cameraLen = 2;
 export const reactToOperation = (name, draw) => {
   const canvas = document.querySelector(`#${name}`);
   // zooming the model
-  canvas.addEventListener('mousewheel', function(e) {
+  canvas.addEventListener('mousewheel', function(e: any) {
     if (e.wheelDelta > 0) {
       camera.C = vectorScale(camera.C, 6/5);
     } else {

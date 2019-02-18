@@ -1,15 +1,15 @@
-import { cameraInit } from './configs/camera.js';
-import loadFile from './utils/loadFile.js';
-import draw from './utils/draw.js';
+import { cameraInit } from './configs/camera';
+import loadFile from './utils/loadFile';
+import draw from './utils/draw';
 import { 
   bindSlider,
   loadMenu,
-  reactToOperation } from './utils/dom.js';
-import result from './configs/result.js';
+  reactToOperation } from './utils/dom';
+import result from './configs/result';
 
 /******************** Initialize DOM ********************/
 // Get canvas ready
-const canvas = document.querySelector('#content');
+const canvas: HTMLCanvasElement = document.querySelector('#content');
 const [height, width] = [canvas.height, canvas.width];
 const ctx = canvas.getContext('2d');
 ctx.fillRect(0, 0, width, height);
@@ -17,14 +17,14 @@ ctx.strokeStyle = 'green';
 // Inject parameter to draw function
 const drawCtx = draw(ctx, width, height);
 // Load all model options to menu
-const choose_model = document.querySelector('select.choose_model');
+const choose_model: HTMLSelectElement = document.querySelector('select.choose_model');
 loadMenu(choose_model);
 // Get three slides ready binding with h, d, f parameter
 ['h', 'd', 'f'].forEach(item => bindSlider(item, drawCtx));
 
 // Button
 // Bind render button with load file and render opertion
-const renderBtn = document.querySelector('.render');
+const renderBtn: HTMLButtonElement = document.querySelector('.render');
 renderBtn.addEventListener('click', () => {
   const modelIndex = choose_model.selectedIndex;
   if (modelIndex === 0) {

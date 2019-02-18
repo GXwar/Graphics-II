@@ -8,8 +8,8 @@ export const vectorExtend = (vector) => {
 
 export const vectorCollapse = (vector) => {
   let vec = Array.from(vector);
-  let t = vec.pop();
-  return vec.map(item => item / t);
+  let t: any = vec.pop();
+  return vec.map((item: number) => item / t);
 };
 
 /**

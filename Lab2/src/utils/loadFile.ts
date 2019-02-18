@@ -1,4 +1,4 @@
-import model from '../configs/model.js';
+import model from '../configs/model';
 
 /**
  * Parse the data from the .d file
