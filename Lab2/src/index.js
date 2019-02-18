@@ -7,7 +7,6 @@ import {
   reactToOperation } from './utils/dom.js';
 import result from './configs/result.js';
 
-
 /******************** Initialize DOM ********************/
 // Get canvas ready
 const canvas = document.querySelector('#content');
@@ -22,6 +21,8 @@ const choose_model = document.querySelector('select.choose_model');
 loadMenu(choose_model);
 // Get three slides ready binding with h, d, f parameter
 ['h', 'd', 'f'].forEach(item => bindSlider(item, drawCtx));
+
+// Button
 // Bind render button with load file and render opertion
 const renderBtn = document.querySelector('.render');
 renderBtn.addEventListener('click', () => {
@@ -31,10 +32,16 @@ renderBtn.addEventListener('click', () => {
   }
   const modelName = choose_model.options[modelIndex].value;
   loadFile(`./public/model/${modelName}.d.txt`, drawCtx);
+  renderBtn.disabled = true;
 });
+// bind reset button with refresh function
+const resetBtn = document.querySelector('.reset');
+resetBtn.addEventListener('click', () => {
+  location.reload();
+})
 
 /******************** Initialize Data ********************/
-// Binding
+// Binding operation
 reactToOperation('content', drawCtx);
 // Calculate N, U, V vector
 cameraInit();

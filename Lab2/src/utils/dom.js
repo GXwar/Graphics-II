@@ -1,25 +1,7 @@
 /******************** DOM OPERATION ********************/
 import camera, { cameraInit } from '../configs/camera.js';
 import { files } from '../configs/constants.js';
-import result from '../configs/result.js';
 import { vectorAdd, vectorScale } from '../operate/vector.js';
-
-/**
- * Bind the value of slider with camera setting
- * @param {String} name 
- */
-export const bindSlider = (name, operation) => {
-  const slider = document.querySelector(`#${name}`);
-  const sliderText = document.querySelector(`#${name}_V`);
-  slider.value = camera[name];
-  sliderText.innerHTML = camera[name];
-  slider.addEventListener('change', function() {
-    camera[name] = this.value;
-    sliderText.innerHTML = this.value;
-    camera.pRef[0] -= 10;
-    operation();
-  });
-};
 
 /**
  * Load menu
@@ -30,6 +12,23 @@ export const loadMenu = (selectDOM) => {
     option.setAttribute("value", file);
     option.appendChild(document.createTextNode(file));
     selectDOM.appendChild(option);
+  });
+};
+
+/**
+ * Bind the value of slider with camera setting
+ * @param {String} name 
+ */
+export const bindSlider = (name, draw) => {
+  const slider = document.querySelector(`#${name}`);
+  const sliderText = document.querySelector(`#${name}_V`);
+  slider.value = camera[name];
+  sliderText.innerHTML = camera[name];
+  slider.addEventListener('change', function() {
+    camera[name] = this.value;
+    sliderText.innerHTML = this.value;
+    camera.pRef[0] -= 10;
+    draw();
   });
 };
 
@@ -70,7 +69,6 @@ export const reactToOperation = (name, draw) => {
       case 'i':
         camera.C[1] -= cameraLen;
         cameraInit();
-        draw();
         draw();
         break;
       case 'k': 
