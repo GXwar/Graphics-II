@@ -1,32 +1,22 @@
-#content {
-  display: inline-block;
-}
-
 #graphic {
   font-size: 30px;
-  text-align: center;
-}
+  text-align: center; }
+
+#content {
+  display: inline-block; }
 
 .seperator {
   display: inline-block;
   border-top: 1px solid #ddd;
-  margin: 0 10px;
-}
+  margin: 0 10px; }
 
 .control-panel {
   display: inline-block;
-  vertical-align: top;
-}
+  vertical-align: top; }
+  .control-panel .title {
+    font-size: 20px;
+    margin: 15px 0 10px 0; }
+  .control-panel .select-model .title {
+    margin-top: 0; }
 
-.control-panel .title {
-  font-size: 20px;
-  margin: 15px 0;
-}
-
-.control-panel .title:first-of-type {
-  margin-top: 0;
-}
-
-.back-face-culling {
-  margin-bottom: 15px;
-}
+/*# sourceMappingURL=index.css.map */

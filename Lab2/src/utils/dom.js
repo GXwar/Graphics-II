@@ -34,21 +34,6 @@ export const loadMenu = (selectDOM) => {
 };
 
 /**
- * Bind selected DOM element with back face culling
- * @param {String} name
- * @param {Function} operation 
- */
-export const backFaceCullingDOM = (name, draw) => {
-  const backFaceDIV = document.querySelector(`.${name}`);
-  backFaceDIV.addEventListener('click', function(e) {
-    if (e.target && e.target.nodeName.toUpperCase() == "INPUT") {
-      result.cullingPreference = e.target.value === '1';
-      draw();
-    };
-  });
-};
-
-/**
  * Bind operation to control the final effect
  */
 const objectLen = 1;

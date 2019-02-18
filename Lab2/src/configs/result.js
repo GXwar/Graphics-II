@@ -2,8 +2,6 @@
  * Result 
  */
 let result = {
-  // Back-face culling or not
-  cullingPreference: false,
   // A set used to save back face index
   backFaceSet: new Set(),
   // transformed point

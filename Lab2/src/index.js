@@ -4,7 +4,6 @@ import draw from './utils/draw.js';
 import { 
   bindSlider,
   loadMenu,
-  backFaceCullingDOM,
   reactToOperation } from './utils/dom.js';
 import result from './configs/result.js';
 
@@ -21,8 +20,6 @@ const drawCtx = draw(ctx, width, height);
 // Load all model options to menu
 const choose_model = document.querySelector('select.choose_model');
 loadMenu(choose_model);
-// Bind select button with back face culling
-backFaceCullingDOM('back-face-culling', drawCtx);
 // Get three slides ready binding with h, d, f parameter
 ['h', 'd', 'f'].forEach(item => bindSlider(item, drawCtx));
 // Bind render button with load file and render opertion
