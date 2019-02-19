@@ -1,3 +1,9 @@
+/*
+ * @Author: GXwar 
+ * @Date: 2019-02-15 11:37:10
+ * @Last Modified by: GXwar
+ * @Last Modified time: 2019-02-19 01:33:03
+ */
 import { Vector3d } from '../math/Vector3d';
 
 class Camera {

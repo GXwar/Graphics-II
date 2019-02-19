@@ -1,7 +1,7 @@
 /******************** DRAW IMAGE ********************/
 import { parameters } from '../configs/parameters';
-import { calcModel, backFaceCulling } from '../operate/transform';
-import scanConversion, { bufferInit } from './fillPixel';
+import { calcModel, backFaceCulling } from '../../lib/transform/modeling';
+import { colorInit, scanConversion } from './fillPixel';
 
 /**
  * Draw model on the canvas
@@ -9,25 +9,25 @@ import scanConversion, { bufferInit } from './fillPixel';
  * @param width 
  * @param height 
  */
-const draw = (ctx: CanvasRenderingContext2D, width: number, height: number) => () => {
+const draw = (ctx: CanvasRenderingContext2D, width: number, height: number): Function => () : void => {
   // back face culling, save it to model object
-  backFaceCulling();
+  const backFaceSet = backFaceCulling(parameters.faces, parameters.points, parameters.camera);
   // transform points from virtual world to 2d screen
-  parameters.calcPoints = calcModel();
-  // z-buffer algorithm
-  bufferInit();
-  scanConversion();
+  const calcPoints = calcModel(parameters.points, parameters.camera, parameters.h, parameters.d, parameters.f);
+  // fill pixels
+  colorInit();
+  const pixelBuffer = scanConversion(parameters.faces, calcPoints, backFaceSet, height, width);
   // draw image
   ctx.clearRect(0, 0, width, height);
   const imageData = ctx.createImageData(width, height);
   const data = new Uint8Array(width * height * 4);
-  for (let i = 0; i < parameters.height; i++) {
-    for (let j = 0; j < parameters.width; j++) {
-      const t = i * parameters.width + j;
+  for (let i = 0; i < height; i++) {
+    for (let j = 0; j < width; j++) {
+      const t = i * width + j;
       // r g b a
-      data[t * 4 + 0] = parameters.pixelBuffer[i][j][0];
-      data[t * 4 + 1] = parameters.pixelBuffer[i][j][1];
-      data[t * 4 + 2] = parameters.pixelBuffer[i][j][2];
+      data[t * 4 + 0] = pixelBuffer[i][j][0];
+      data[t * 4 + 1] = pixelBuffer[i][j][1];
+      data[t * 4 + 2] = pixelBuffer[i][j][2];
       data[t * 4 + 3] = 255;
     }
   }

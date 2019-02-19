@@ -1,3 +1,9 @@
+/*
+ * @Author: GXwar 
+ * @Date: 2019-02-17 21:37:10
+ * @Last Modified by:   GXwar 
+ * @Last Modified time: 2019-02-19 01:34:06 
+ */
 class EdgeTableElement {
   yStart: number;
   yMax: number;

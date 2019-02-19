@@ -4,7 +4,8 @@ import draw from './utils/draw';
 import { 
   bindSlider,
   loadMenu,
-  reactToOperation } from './utils/dom';
+  reactToOperation 
+} from './utils/dom';
 
 /******************** Initialize DOM ********************/
 // Get canvas ready
@@ -47,4 +48,3 @@ reactToOperation(canvas, drawCtx);
 parameters.camera.calcNUV(parameters.pRef);
 parameters.width = width;
 parameters.height = height;
-drawCtx();

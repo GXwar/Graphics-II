@@ -1,3 +1,9 @@
+/*
+ * @Author: GXwar 
+ * @Date: 2019-02-15 01:32:16 
+ * @Last Modified by: GXwar
+ * @Last Modified time: 2019-02-19 01:32:26
+ */
 import { Vector4d } from "./Vector4d";
 
 class Vector3d {

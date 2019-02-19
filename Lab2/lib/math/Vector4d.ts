@@ -1,3 +1,9 @@
+/*
+ * @Author: GXwar 
+ * @Date: 2019-02-15 01:31:53 
+ * @Last Modified by: GXwar
+ * @Last Modified time: 2019-02-19 01:32:33
+ */
 import { Vector3d } from './Vector3d';
 import { Matrix } from './Matrix';
 
