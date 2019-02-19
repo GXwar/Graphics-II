@@ -3,6 +3,7 @@ const files: Array<string> = [
   'atc',
   'ball',
   'cow',
+  'house',
   'knight'
 ];
 

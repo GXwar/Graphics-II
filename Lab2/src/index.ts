@@ -1,11 +1,10 @@
-import { cameraInit } from './configs/camera';
+import { parameters } from './configs/parameters';
 import loadFile from './utils/loadFile';
 import draw from './utils/draw';
 import { 
   bindSlider,
   loadMenu,
   reactToOperation } from './utils/dom';
-import result from './configs/result';
 
 /******************** Initialize DOM ********************/
 // Get canvas ready
@@ -45,6 +44,7 @@ resetBtn.addEventListener('click', () => {
 // Binding operation
 reactToOperation(canvas, drawCtx);
 // Calculate N, U, V vector
-cameraInit();
-result.width = width;
-result.height = height;
+parameters.camera.calcNUV(parameters.pRef);
+parameters.width = width;
+parameters.height = height;
+drawCtx();

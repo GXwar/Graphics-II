@@ -1,36 +1,32 @@
-import camera from '../configs/camera';
-import model from '../configs/model';
-import result from '../configs/result';
-import { vectorExtend, vectorCollapse, vectorSubtract, vector3dCrossProduct, vector3dDotProduct } from './vector';
-import { matrixMultiply, matrixMultiplyVector } from './matrix';
+import { parameters } from '../configs/parameters';
+import { Matrix, Vector3d } from '../../lib/index';
 
-const world2Camera = () => {
-  const T = [
-    [1, 0, 0, -camera.C[0]],
-    [0, 1, 0, -camera.C[1]],
-    [0, 0, 1, -camera.C[2]],
-    [0, 0, 0, 1           ]
-  ];
-  const R = [
-    [camera.U[0], camera.U[1], camera.U[2], 0],
-    [camera.V[0], camera.V[1], camera.V[2], 0],
-    [camera.N[0], camera.N[1], camera.N[2], 0],
+const world2Camera = (): Matrix => {
+  const camera = parameters.camera;
+  const R: Matrix = new Matrix([
+    [camera.U.x, camera.U.y, camera.U.z, 0],
+    [camera.V.x, camera.V.y, camera.V.z, 0],
+    [camera.N.x, camera.N.y, camera.N.z, 0],
     [0          , 0          , 0          , 1]
-  ];
-  const RT = matrixMultiply(R, T);
-  return RT;
+  ]);
+  const T: Matrix = new Matrix([
+    [1, 0, 0, -camera.position.x],
+    [0, 1, 0, -camera.position.y],
+    [0, 0, 1, -camera.position.z],
+    [0, 0, 0, 1           ]
+  ]);
+  return R.multiply(T);
 };
 
-const perspectiveTrans = () => {
-  const a = camera.f / (camera.f - camera.d);
-  const b = camera.d / camera.h;
-  const mPers = [
+const perspectiveTrans = (): Matrix => {
+  const a = parameters.f / (parameters.f - parameters.d);
+  const b = parameters.d / parameters.h;
+  return new Matrix([
     [b, 0, 0, 0          ],
     [0, b, 0, 0          ],
-    [0, 0, a, -a*camera.d],
+    [0, 0, a, -a*parameters.d],
     [0, 0, 1, 0          ]
-  ];
-  return mPers;
+  ]);
 };
 
 /**
@@ -39,20 +35,26 @@ const perspectiveTrans = () => {
  * Note: Some the polygons are denoted in anti-clockwise order
  */
 export const backFaceCulling = () => {
-  result.backFaceSet = new Set();
-  model.faces.forEach((x, index) => {
-    if (vector3dDotProduct(vector3dCrossProduct(vectorSubtract(model.points[x[0]], model.points[x[1]]), vectorSubtract(model.points[x[1]], model.points[x[2]])), 
-        vectorSubtract(camera.C, model.points[x[0]])) >= 0) {
-      result.backFaceSet.add(index);
+  parameters.backFaceSet = new Set();
+  parameters.faces.forEach((x, index) => {
+    // if (vector3dDotProduct(vector3dCrossProduct(vectorSubtract(model.points[x[0]], model.points[x[1]]), vectorSubtract(model.points[x[1]], model.points[x[2]])), 
+    //     vectorSubtract(camera.C, model.points[x[0]])) >= 0) {
+    //   result.backFaceSet.add(index);
+    // }
+    const v1 = parameters.points[x[0]].subtract(parameters.points[x[1]]);
+    const v2 = parameters.points[x[1]].subtract(parameters.points[x[2]]);
+    const Np = v1.crossProduct(v2);
+    const N = parameters.camera.position.subtract(parameters.points[x[0]]);
+    if (Np.dotProduct(N) >= 0) {
+      parameters.backFaceSet.add(index);
     }
   });
 };
 
 // Calculate model
-export const calcModel = () => {
-  const combo = matrixMultiply(perspectiveTrans(), world2Camera());
-  return model.points.map(point => {
-    let t = matrixMultiplyVector(combo, vectorExtend(point));
-    return vectorCollapse(t);
+export const calcModel = (): Array<Vector3d> => {
+  const combo: Matrix = perspectiveTrans().multiply(world2Camera());
+  return parameters.points.map(point => {
+    return combo.multiply(point.extend().toMatrix()).toVector();
   });
 };

@@ -9,7 +9,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node --experimental-modules server.js",
-    "build": "webpack --config webpack.config.js"
+    "build": "webpack --watch --config webpack.config.js"
   },
   "keywords": [],
   "author": "",

@@ -1,7 +1,6 @@
 /******************** DOM OPERATION ********************/
-import camera, { cameraInit } from '../configs/camera';
+import { parameters } from '../configs/parameters';
 import { files } from '../configs/constants';
-import { vectorAdd, vectorScale } from '../operate/vector';
 
 /**
  * Load menu
@@ -22,12 +21,12 @@ export const loadMenu = (selectDOM: HTMLSelectElement) => {
 export const bindSlider = (name: string, draw: Function) => {
   const slider: HTMLInputElement = <HTMLInputElement>document.querySelector(`#${name}`);
   const sliderText: HTMLSpanElement = <HTMLSpanElement>document.querySelector(`#${name}_V`);
-  slider.value = camera[name];
-  sliderText.innerHTML = camera[name];
+  slider.value = parameters[name];
+  sliderText.innerHTML = parameters[name];
   slider.addEventListener('change', function() {
-    camera[name] = this.value;
+    parameters[name] = this.value;
     sliderText.innerHTML = this.value;
-    camera.pRef[0] -= 10;
+    parameters.pRef[0] -= 10;
     draw();
   });
 };
@@ -39,50 +38,51 @@ const objectLen = 1;
 const cameraLen = 2;
 export const reactToOperation = (canvas: HTMLCanvasElement, draw: Function) => {
   // zooming the model
-  canvas.addEventListener('mousewheel', function(e: any) {
-    if (e.wheelDelta > 0) {
-      camera.C = vectorScale(camera.C, 6/5);
+  const camera = parameters.camera;
+  canvas.addEventListener('mousewheel', function(event: any) {
+    if (event.wheelDelta > 0) {
+      camera.position = camera.position.scale(6/5);
     } else {
-      camera.C = vectorScale(camera.C, 5/6);
+      camera.position = camera.position.scale(5/6);
     }
     draw();
   });
   document.addEventListener('keypress', function(e) {
     switch (e.key) {
       case 'w': 
-        camera.C = vectorAdd(camera.C, vectorScale(camera.V, -objectLen));
+        camera.position = camera.position.add(camera.V.scale(-objectLen));
         draw();
         break;
       case 's':
-        camera.C = vectorAdd(camera.C, vectorScale(camera.V, objectLen));
+        camera.position = camera.position.add(camera.V.scale(objectLen));
         draw();
         break;
       case 'a':
-        camera.C = vectorAdd(camera.C, vectorScale(camera.U, objectLen));
+        camera.position = camera.position.add(camera.U.scale(objectLen));
         draw();
         break;
       case 'd':
-        camera.C = vectorAdd(camera.C, vectorScale(camera.U, -objectLen));
+        camera.position = camera.position.add(camera.U.scale(-objectLen));
         draw();
         break;
       case 'i':
-        camera.C[1] -= cameraLen;
-        cameraInit();
+        camera.position.y -= cameraLen;
+        camera.calcNUV(parameters.pRef);
         draw();
         break;
       case 'k': 
-        camera.C[1] += cameraLen;
-        cameraInit();
+      camera.position.y += cameraLen;
+        camera.calcNUV(parameters.pRef);
         draw();
         break;
       case 'j':
-        camera.C[0] += cameraLen;
-        cameraInit();
+      camera.position.x += cameraLen;
+        camera.calcNUV(parameters.pRef);
         draw();
         break;
       case 'l':
-        camera.C[0] -= cameraLen;
-        cameraInit();
+      camera.position.x -= cameraLen;
+        camera.calcNUV(parameters.pRef);
         draw();
         break;
       default:
