@@ -6,15 +6,11 @@ class Model {
   points: Array<Vector3d>;
   faces: Array<Array<number>>;
   facesColor: Array<RGBA>;
-  backFaceSet: Set<number>;
-  calcPoints: Array<Vector3d>;
 
   constructor() {
     this.points = [];
     this.faces = [];
     this.facesColor = [];
-    this.backFaceSet = new Set();
-    this.calcPoints = [];
   }
 
   colorInit(): void {

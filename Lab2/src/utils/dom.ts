@@ -2,7 +2,7 @@
  * @Author: GXwar 
  * @Date: 2019-02-14 18:55:51 
  * @Last Modified by: GXwar
- * @Last Modified time: 2019-02-19 22:38:35
+ * @Last Modified time: 2019-02-19 22:47:54
  */
 /******************** DOM OPERATION ********************/
 import { parameters, camera } from '../configs/parameters';
@@ -34,7 +34,6 @@ export const bindSlider = (name: string, draw: Function): void => {
   slider.addEventListener('change', function() {
     parameters[name] = this.value;
     sliderText.innerHTML = this.value;
-    calcAll();
     draw();
   });
 };
@@ -51,29 +50,24 @@ export const reactToOperation = (canvas: HTMLCanvasElement, draw: Function) => {
     } else {
       camera.position = camera.position.scale(5/6);
     }
-    calcAll();
     draw();
   });
   document.addEventListener('keypress', function(e) {
     switch (e.key) {
       case 'i':
         camera.position.y += cameraLen;
-        calcAll();
         draw();
         break;
       case 'k': 
         camera.position.y -= cameraLen;
-        calcAll();
         draw();
         break;
       case 'j':
         camera.position.x -= cameraLen;
-        calcAll();
         draw();
         break;
       case 'l':
         camera.position.x += cameraLen;
-        calcAll();
         draw();
         break;
       default:

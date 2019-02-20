@@ -2,7 +2,7 @@
  * @Author: GXwar 
  * @Date: 2019-02-17 14:44:32 
  * @Last Modified by: GXwar
- * @Last Modified time: 2019-02-19 22:05:53
+ * @Last Modified time: 2019-02-19 22:51:41
  */
 /******************** FILL PIXELS ********************/
 import { 
@@ -66,19 +66,20 @@ const addEdgeToET = (lowerPoint: Vector3d, upperPoint: Vector3d, edgeTable: Arra
 const calcZ = (edge: EdgeTableElement, ys: number): number => edge.yMax === edge.yStart ? edge.zUpper : 
                         edge.zUpper - (edge.zUpper - edge.zLower) * (edge.yMax - ys) / (edge.yMax - edge.yStart);
 
-const scanConversion = (model: Model, height: number, width: number): Array<Array<RGBA>> => {
+const scanConversion = (model: Model, calcPoints: Array<Vector3d>, backFaceSet: Set<number>,
+                         height: number, width: number): Array<Array<RGBA>> => {
   const [iBuffer, zBuffer] = bufferInit(height, width);
   let activeEdgeTable: Array<EdgeTableElement> = [];
   // for each face
   model.faces.forEach((face: Array<number>, index: number) => {
     // don't need to consider back face
-    if (model.backFaceSet.has(index)) return;
+    if (backFaceSet.has(index)) return;
     // build edge table
     const edgeTable = edgeTableInit(height);
     for (let i = 0; i < face.length; i++) {
       // get an edge 
-      let lowerPoint = model.calcPoints[face[i]];
-      let upperPoint = model.calcPoints[face[(i + 1) % face.length]];
+      let lowerPoint = calcPoints[face[i]];
+      let upperPoint = calcPoints[face[(i + 1) % face.length]];
       addEdgeToET(lowerPoint, upperPoint, edgeTable, height);
     }
     

@@ -2,9 +2,9 @@
  * @Author: GXwar 
  * @Date: 2019-02-14 15:18:52 
  * @Last Modified by: GXwar
- * @Last Modified time: 2019-02-19 22:39:18
+ * @Last Modified time: 2019-02-19 22:52:15
  */
-import { parameters } from './configs/parameters';
+import { model, camera, parameters } from './configs/parameters';
 import loadFile from './utils/loadFile';
 import {
   loadMenu,
@@ -12,6 +12,7 @@ import {
   reactToOperation
 } from './utils/dom';
 import { RGBA } from '../lib/index';
+import { calcAll } from './utils/calcAll';
 
 /******************** Initialize DOM ********************/
 // Get canvas ready
@@ -64,7 +65,7 @@ function draw(): void {
   // draw
   const imageData: ImageData = ctx.createImageData(width, height);
   const data: Uint8Array = new Uint8Array(width * height * 4);
-  const iBuffer: Array<Array<RGBA>> = parameters.iBuffer;
+  const iBuffer: Array<Array<RGBA>> = calcAll(model, camera, parameters);
   for (let i = 0; i < height; i++) {
     for (let j = 0; j < width; j++) {
       const t = i * width + j;

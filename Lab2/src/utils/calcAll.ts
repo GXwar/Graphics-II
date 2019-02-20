@@ -2,20 +2,21 @@
  * @Author: GXwar 
  * @Date: 2019-02-19 18:25:24 
  * @Last Modified by: GXwar
- * @Last Modified time: 2019-02-19 22:10:03
+ * @Last Modified time: 2019-02-19 22:52:12
  */
-import { model, camera, parameters } from '../configs/parameters';
 import {
   backFaceCulling,
   calcModel,
-  scanConversion
+  scanConversion,
+  Model,
+  Camera
 } from '../../lib/index';
 
-const calcAll = () => {
+const calcAll = (model: Model, camera: Camera, parameters: any) => {
   camera.calcNUV();
-  model.backFaceSet = backFaceCulling(model, camera);
-  model.calcPoints = calcModel(model, camera, parameters.h, parameters.d, parameters.f);
-  parameters.iBuffer = scanConversion(model, parameters.height, parameters.width);
+  const backFaceSet = backFaceCulling(model, camera);
+  const calcPoints = calcModel(model, camera, parameters.h, parameters.d, parameters.f);
+  return scanConversion(model, calcPoints, backFaceSet, parameters.height, parameters.width);
 };
 
 export { calcAll };

@@ -2,7 +2,7 @@
  * @Author: GXwar 
  * @Date: 2019-02-12 15:08:51 
  * @Last Modified by: GXwar
- * @Last Modified time: 2019-02-19 22:37:31
+ * @Last Modified time: 2019-02-19 22:48:16
  */
 import { model } from '../configs/parameters';
 import { 
@@ -74,7 +74,6 @@ const readFile = (filePath: string): Promise<string> => {
 const loadFile = (filePaths: Array<string>, draw: Function): void => {
   if (filePaths.length == 0) {
     model.colorInit();
-    calcAll();
     draw();
   } else {
     const file = filePaths.pop();
