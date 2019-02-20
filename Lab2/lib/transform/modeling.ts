@@ -2,17 +2,18 @@
  * @Author: GXwar 
  * @Date: 2019-02-19 00:20:21 
  * @Last Modified by: GXwar
- * @Last Modified time: 2019-02-19 01:01:23
+ * @Last Modified time: 2019-02-19 16:52:47
  */
 import { Camera } from '../cameras/Camera';
 import { Matrix } from '../math/Matrix';
 import { Vector3d } from '../math/Vector3d';
+import { Model } from '../objects/Model';
 
-const world2Camera = (camera: Camera): Matrix => {
+const world2Camera = (model: any, camera: Camera): Matrix => {
   const R: Matrix = new Matrix([
-    [camera.U.x, camera.U.y, camera.U.z, 0],
-    [camera.V.x, camera.V.y, camera.V.z, 0],
-    [camera.N.x, camera.N.y, camera.N.z, 0],
+    [model.U.x, model.U.y, model.U.z, 0],
+    [model.V.x, model.V.y, model.V.z, 0],
+    [model.N.x, model.N.y, model.N.z, 0],
     [0          , 0          , 0          , 1]
   ]);
   const T: Matrix = new Matrix([
@@ -36,13 +37,13 @@ const perspectiveTransform = (h: number, d: number, f: number): Matrix => new Ma
  * Visible if Np dot product N > 0
  * Note: Some the polygons are denoted in anti-clockwise order
  */
-const backFaceCulling = (faces: Array<Array<number>>, points: Array<Vector3d>, camera: Camera): Set<number> => {
+const backFaceCulling = (model: Model, camera: Camera): Set<number> => {
   const backFaceSet: Set<number> = new Set();
-  faces.forEach((face: Array<number>, index: number) => {
-    const v1 = points[face[0]].subtract(points[face[1]]);
-    const v2 = points[face[1]].subtract(points[face[2]]);
+  model.faces.forEach((face: Array<number>, index: number) => {
+    const v1 = model.points[face[0]].subtract(model.points[face[1]]);
+    const v2 = model.points[face[1]].subtract(model.points[face[2]]);
     const Np = v1.crossProduct(v2);
-    const N = camera.position.subtract(points[face[0]]);
+    const N = camera.position.subtract(model.points[face[0]]);
     if (Np.dotProduct(N) >= 0) {
       backFaceSet.add(index);
     }
@@ -51,9 +52,9 @@ const backFaceCulling = (faces: Array<Array<number>>, points: Array<Vector3d>, c
 };
 
 // Calculate model
-const calcModel = (points: Array<Vector3d>, camera: Camera, h: number, d: number, f: number): Array<Vector3d> => {
-  const combo: Matrix = perspectiveTransform(h, d, f).multiply(world2Camera(camera));
-  return points.map(point => {
+const calcModel = (model: Model, camera: Camera, h: number, d: number, f: number): Array<Vector3d> => {
+  const combo: Matrix = perspectiveTransform(h, d, f).multiply(world2Camera(model, camera));
+  return model.points.map(point => {
     return combo.multiply(point.extend().toMatrix()).toVector();
   });
 };

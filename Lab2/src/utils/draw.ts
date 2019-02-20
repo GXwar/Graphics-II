@@ -1,7 +1,5 @@
 /******************** DRAW IMAGE ********************/
-import { parameters } from '../configs/parameters';
-import { calcModel, backFaceCulling } from '../../lib/transform/modeling';
-import { colorInit, scanConversion } from './fillPixel';
+import { RGBA } from '../../lib/index';
 
 /**
  * Draw model on the canvas
@@ -9,26 +7,21 @@ import { colorInit, scanConversion } from './fillPixel';
  * @param width 
  * @param height 
  */
-const draw = (ctx: CanvasRenderingContext2D, width: number, height: number): Function => () : void => {
-  // back face culling, save it to model object
-  const backFaceSet = backFaceCulling(parameters.faces, parameters.points, parameters.camera);
-  // transform points from virtual world to 2d screen
-  const calcPoints = calcModel(parameters.points, parameters.camera, parameters.h, parameters.d, parameters.f);
-  // fill pixels
-  colorInit();
-  const pixelBuffer = scanConversion(parameters.faces, calcPoints, backFaceSet, height, width);
+const draw = (ctx: CanvasRenderingContext2D, width: number, height: number): Function =>
+             (iBuffer: Array<Array<RGBA>>): void => {
   // draw image
   ctx.clearRect(0, 0, width, height);
   const imageData = ctx.createImageData(width, height);
   const data = new Uint8Array(width * height * 4);
+  console.log(iBuffer);
   for (let i = 0; i < height; i++) {
     for (let j = 0; j < width; j++) {
       const t = i * width + j;
-      // r g b a
-      data[t * 4 + 0] = pixelBuffer[i][j][0];
-      data[t * 4 + 1] = pixelBuffer[i][j][1];
-      data[t * 4 + 2] = pixelBuffer[i][j][2];
-      data[t * 4 + 3] = 255;
+      const color: RGBA = iBuffer[i][j];
+      data[t * 4 + 0] = color.r;
+      data[t * 4 + 1] = color.g;
+      data[t * 4 + 2] = color.b;
+      data[t * 4 + 3] = color.a;
     }
   }
   imageData.data.set(data);

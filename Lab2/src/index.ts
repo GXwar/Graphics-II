@@ -1,11 +1,25 @@
-import { parameters } from './configs/parameters';
+/*
+ * @Author: GXwar 
+ * @Date: 2019-02-14 15:18:52 
+ * @Last Modified by: GXwar
+ * @Last Modified time: 2019-02-19 18:57:06
+ */
+import {
+  models, parameters
+} from './configs/parameters';
 import loadFile from './utils/loadFile';
-import draw from './utils/draw';
-import { 
-  bindSlider,
+import {
   loadMenu,
-  reactToOperation 
+  bindSlider,
+  reactToOperation
 } from './utils/dom';
+import {
+  Model,
+  RGBA
+} from '../lib/index';
+import {
+  bufferInit
+} from '../lib/index';
 
 /******************** Initialize DOM ********************/
 // Get canvas ready
@@ -14,25 +28,30 @@ const height: number = canvas.height;
 const width: number = canvas.width;
 const ctx: CanvasRenderingContext2D = <CanvasRenderingContext2D>canvas.getContext('2d');
 ctx.fillRect(0, 0, width, height);
-ctx.strokeStyle = 'green';
-// Inject parameter to draw function
-const drawCtx = draw(ctx, width, height);
 // Load all model options to menu
-const choose_model: HTMLSelectElement = <HTMLSelectElement>document.querySelector('select.choose_model');
-loadMenu(choose_model);
-// Get three slides ready binding with h, d, f parameter
-['h', 'd', 'f'].forEach(item => bindSlider(item, drawCtx));
+const choose_model1: HTMLSelectElement = <HTMLSelectElement>document.querySelector('select.choose_model1');
+const choose_model2: HTMLSelectElement = <HTMLSelectElement>document.querySelector('select.choose_model2');
+loadMenu(choose_model1);
+loadMenu(choose_model2);
+// // Get three slides ready binding with h, d, f parameter
+['h', 'd', 'f'].forEach(item => bindSlider(item));
 
 // Button
 // Bind render button with load file and render opertion
 const renderBtn: HTMLButtonElement = <HTMLButtonElement>document.querySelector('.render');
 renderBtn.addEventListener('click', () => {
-  const modelIndex = choose_model.selectedIndex;
-  if (modelIndex === 0) {
+  const modelIndex1 = choose_model1.selectedIndex;
+  const modelIndex2 = choose_model2.selectedIndex;
+  if (modelIndex1 === 0 || modelIndex2 === 0) {
     alert('Please select a model to render');
   }
-  const modelName = choose_model.options[modelIndex].value;
-  loadFile(`./public/model/${modelName}.d.txt`, drawCtx);
+  let modelNames: Array<string> = [];
+  modelNames.push(choose_model1.options[modelIndex1].value);
+  modelNames.push(choose_model2.options[modelIndex2].value);
+  modelNames = modelNames.map((name: string): string => {
+    return `./public/model/${name}.d.txt`;
+  });
+  loadFile(modelNames);
   renderBtn.disabled = true;
 });
 // bind reset button with refresh function
@@ -42,9 +61,45 @@ resetBtn.addEventListener('click', () => {
 })
 
 /******************** Initialize Data ********************/
-// Binding operation
-reactToOperation(canvas, drawCtx);
-// Calculate N, U, V vector
-parameters.camera.calcNUV(parameters.pRef);
 parameters.width = width;
 parameters.height = height;
+// // Binding operation
+reactToOperation(canvas);
+
+draw();
+
+function draw(): void {
+  ctx.clearRect(0, 0, width, height);
+  const imageData = ctx.createImageData(width, height);
+  const data = new Uint8Array(width * height * 4);
+  const iBuffer = getBuffer(models, height, width);
+  for (let i = 0; i < height; i++) {
+    for (let j = 0; j < width; j++) {
+      const t = i * width + j;
+      const color: RGBA = iBuffer[i][j];
+      data[t * 4 + 0] = color.r;
+      data[t * 4 + 1] = color.g;
+      data[t * 4 + 2] = color.b;
+      data[t * 4 + 3] = color.a;
+    }
+  }
+  imageData.data.set(data);
+  ctx.putImageData(imageData, 0, 0);
+  requestAnimationFrame(draw);
+}
+
+function getBuffer(models: Array<Model>, height: number, width: number): Array<Array<RGBA>> {
+  const [iBuffer, zBuffer] = bufferInit(height, width);
+  if (models.length == 2 && models.every(model => model.ready)) {
+    for (let i = 0; i < height; i++) {
+      for (let j = 0; j < width; j++) {
+        for (let k = 0; k < models.length; k++) {
+          if (models[k].zBuffer[i][j] < zBuffer[i][j]) {
+            iBuffer[i][j] = models[k].iBuffer[i][j];
+          }
+        }
+      }
+    }
+  }
+  return iBuffer;
+}

@@ -2,20 +2,18 @@
  * @Author: GXwar 
  * @Date: 2019-02-15 01:31:53 
  * @Last Modified by: GXwar
- * @Last Modified time: 2019-02-19 01:32:33
+ * @Last Modified time: 2019-02-19 14:41:30
  */
+import { Vector } from './Vector';
 import { Vector3d } from './Vector3d';
 import { Matrix } from './Matrix';
 
-class Vector4d {
-  x: number;
-  y: number;
+class Vector4d extends Vector {
   z: number;
   w: number;
 
   constructor(x: number, y: number, z: number, w: number) {
-    this.x = x;
-    this.y = y;
+    super(x, y);
     this.z = z;
     this.w = w;
   }

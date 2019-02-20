@@ -2,18 +2,23 @@
  * @Author: GXwar 
  * @Date: 2019-02-15 01:32:16 
  * @Last Modified by: GXwar
- * @Last Modified time: 2019-02-19 01:32:26
+ * @Last Modified time: 2019-02-19 15:30:21
  */
+import { Vector } from './Vector';
 import { Vector4d } from "./Vector4d";
 
-class Vector3d {
-  x: number;
-  y: number;
+class Vector3d extends Vector {
   z: number;
-  constructor(x: number, y: number, z: number) {
-    this.x = x;
-    this.y = y;
-    this.z = z;
+  constructor();
+  constructor(x: number, y: number, z: number);
+  constructor(x?: number, y?: number, z?: number) {
+    if (x === undefined) {
+      super(0, 0);
+      this.z = 0;
+    } else {
+      super(x, y);
+      this.z = z;
+    }
   }
 
   extend(): Vector4d {

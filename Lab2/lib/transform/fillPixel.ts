@@ -1,29 +1,36 @@
+/*
+ * @Author: GXwar 
+ * @Date: 2019-02-17 14:44:32 
+ * @Last Modified by: GXwar
+ * @Last Modified time: 2019-02-19 17:15:37
+ */
 /******************** FILL PIXELS ********************/
-import { parameters } from '../configs/parameters';
 import { 
   Vector3d,
-  EdgeTableElement
+  EdgeTableElement,
+  Model,
+  RGBA
 } from '../../lib/index';
 
 // get a random integer in [0, 255]
 const random = (): number => Math.floor(Math.random() * 256);
 // convert 2d point to canvas point
-const toPixel = (value: number, shortten: boolean = false): number => 
-                Math.floor((value + 1) * parameters.height / 2) - (shortten ? 1 : 0);
-const toFloatPixel = (value: number): number => (value + 1) * parameters.height / 2;
+const toPixel = (value: number, height: number, shortten: boolean = false): number => 
+                Math.floor((value + 1) * height / 2) - (shortten ? 1 : 0);
+const toFloatPixel = (value: number, height: number): number => (value + 1) * height / 2;
 
-const bufferInit = (height: number, width: number): [Array<Array<Array<number>>>, Array<Array<number>>] => {
-  const pixelBuffer = [];
+const bufferInit = (height: number, width: number): [Array<Array<RGBA>>, Array<Array<number>>] => {
+  const iBuffer = [];
   const zBuffer = [];
   for (let i = 0; i < height; i++) {
-    pixelBuffer[i] = [];
+    iBuffer[i] = [];
     zBuffer[i] = [];
     for (let j = 0; j < width; j++) {
-      pixelBuffer[i][j] = [0, 0, 0];
+      iBuffer[i][j] = new RGBA();
       zBuffer[i][j] = 1;
     }
   }
-  return [pixelBuffer, zBuffer];
+  return [iBuffer, zBuffer];
 };
 
 const edgeTableInit = (height: number): Array<Array<EdgeTableElement>> => {
@@ -34,31 +41,22 @@ const edgeTableInit = (height: number): Array<Array<EdgeTableElement>> => {
   return edgeTable;
 };
 
-const colorInit = () => {
-  // give random color to each face
-  for (let i = 0; i < parameters.facesNum; i++) {
-    parameters.face_color_r_buffer.push(random());
-    parameters.face_color_g_buffer.push(random());
-    parameters.face_color_b_buffer.push(random());
-  }
-};
-
 /**
  * Scan Conversion
  * 1. for each scan line, determine edges of polygons that intersect
  * 2. Find the start and end of the span
  * 3. Rely on scanline and pixel coherence to linearly interpolate (between scanlines and between pixels)
  */
-const addEdgeToET = (lowerPoint: Vector3d, upperPoint: Vector3d, edgeTable: Array<Array<EdgeTableElement>>) => {
+const addEdgeToET = (lowerPoint: Vector3d, upperPoint: Vector3d, edgeTable: Array<Array<EdgeTableElement>>, height: number): void => {
   // ignore horizontal edge and out of range point
-  if (toPixel(lowerPoint.y) === toPixel(upperPoint.y)
+  if (toPixel(lowerPoint.y, height) === toPixel(upperPoint.y, height)
       || lowerPoint.y > 1 || lowerPoint.y < -1) return;
   // swap the order of two points
   if (lowerPoint.y > upperPoint.y) {
     [lowerPoint, upperPoint] = [upperPoint, lowerPoint];
   }
   // create edge table element and add it into the edge table
-  const ETElement = new EdgeTableElement(toPixel(lowerPoint.y), toPixel(upperPoint.y, true), toFloatPixel(lowerPoint.x), 
+  const ETElement = new EdgeTableElement(toPixel(lowerPoint.y, height), toPixel(upperPoint.y, height, true), toFloatPixel(lowerPoint.x, height), 
                                 (lowerPoint.x - upperPoint.x) / (lowerPoint.y - upperPoint.y), upperPoint.z, lowerPoint.z);
   if (ETElement.yStart > ETElement.yMax) {
     ETElement.yMax = ETElement.yStart;
@@ -70,21 +68,20 @@ const addEdgeToET = (lowerPoint: Vector3d, upperPoint: Vector3d, edgeTable: Arra
 const calcZ = (edge: EdgeTableElement, ys: number): number => edge.yMax === edge.yStart ? edge.zUpper : 
                         edge.zUpper - (edge.zUpper - edge.zLower) * (edge.yMax - ys) / (edge.yMax - edge.yStart);
 
-const scanConversion = (faces: Array<Array<number>>, calcPoints: Array<Vector3d>, backFaceSet: Set<number>,
-                        height: number, width: number): Array<Array<Array<number>>> => {
-  const [pixelBuffer, zBuffer] = bufferInit(height, width);
+const scanConversion = (model: Model, height: number, width: number): [Array<Array<RGBA>>, Array<Array<number>>] => {
+  const [iBuffer, zBuffer] = bufferInit(height, width);
   let activeEdgeTable: Array<EdgeTableElement> = [];
   // for each face
-  faces.forEach((face: Array<number>, index: number) => {
+  model.faces.forEach((face: Array<number>, index: number) => {
     // don't need to consider back face
-    if (backFaceSet.has(index)) return;
+    if (model.backFaceSet.has(index)) return;
     // build edge table
     const edgeTable = edgeTableInit(height);
     for (let i = 0; i < face.length; i++) {
       // get an edge 
-      let lowerPoint = calcPoints[face[i]];
-      let upperPoint = calcPoints[face[(i + 1) % face.length]];
-      addEdgeToET(lowerPoint, upperPoint, edgeTable);
+      let lowerPoint = model.calcPoints[face[i]];
+      let upperPoint = model.calcPoints[face[(i + 1) % face.length]];
+      addEdgeToET(lowerPoint, upperPoint, edgeTable, height);
     }
     
     // fill pixel to pixel buffer
@@ -113,7 +110,7 @@ const scanConversion = (faces: Array<Array<number>>, calcPoints: Array<Vector3d>
           let zp = k == Math.max(0, left.xStart) ? za : zb - (zb - za) * (right.xStart - k) / (right.xStart - left.xStart);
           if (zp > zBuffer[i][k]) continue;
           zBuffer[i][k] = zp;
-          pixelBuffer[i][k] = [parameters.face_color_r_buffer[index], parameters.face_color_g_buffer[index], parameters.face_color_b_buffer[index]];
+          iBuffer[i][k] = model.facesColor[index];
         }
       }
       
@@ -125,10 +122,10 @@ const scanConversion = (faces: Array<Array<number>>, calcPoints: Array<Vector3d>
         });
     }
   });
-  return pixelBuffer;
+  return [iBuffer, zBuffer];
 };
 
 export {
-  colorInit,
+  bufferInit,
   scanConversion
 };
