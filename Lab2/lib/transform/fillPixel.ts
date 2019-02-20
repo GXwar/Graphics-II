@@ -2,7 +2,7 @@
  * @Author: GXwar 
  * @Date: 2019-02-17 14:44:32 
  * @Last Modified by: GXwar
- * @Last Modified time: 2019-02-19 17:15:37
+ * @Last Modified time: 2019-02-19 22:05:53
  */
 /******************** FILL PIXELS ********************/
 import { 
@@ -12,8 +12,6 @@ import {
   RGBA
 } from '../../lib/index';
 
-// get a random integer in [0, 255]
-const random = (): number => Math.floor(Math.random() * 256);
 // convert 2d point to canvas point
 const toPixel = (value: number, height: number, shortten: boolean = false): number => 
                 Math.floor((value + 1) * height / 2) - (shortten ? 1 : 0);
@@ -68,7 +66,7 @@ const addEdgeToET = (lowerPoint: Vector3d, upperPoint: Vector3d, edgeTable: Arra
 const calcZ = (edge: EdgeTableElement, ys: number): number => edge.yMax === edge.yStart ? edge.zUpper : 
                         edge.zUpper - (edge.zUpper - edge.zLower) * (edge.yMax - ys) / (edge.yMax - edge.yStart);
 
-const scanConversion = (model: Model, height: number, width: number): [Array<Array<RGBA>>, Array<Array<number>>] => {
+const scanConversion = (model: Model, height: number, width: number): Array<Array<RGBA>> => {
   const [iBuffer, zBuffer] = bufferInit(height, width);
   let activeEdgeTable: Array<EdgeTableElement> = [];
   // for each face
@@ -122,7 +120,7 @@ const scanConversion = (model: Model, height: number, width: number): [Array<Arr
         });
     }
   });
-  return [iBuffer, zBuffer];
+  return iBuffer;
 };
 
 export {

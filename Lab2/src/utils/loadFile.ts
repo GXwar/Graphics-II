@@ -2,24 +2,21 @@
  * @Author: GXwar 
  * @Date: 2019-02-12 15:08:51 
  * @Last Modified by: GXwar
- * @Last Modified time: 2019-02-19 19:18:33
+ * @Last Modified time: 2019-02-19 22:37:31
  */
-import { models, parameters } from '../configs/parameters';
+import { model } from '../configs/parameters';
 import { 
   Vector3d, 
-  Model,
-  backFaceCulling,
-  calcModel,
-  scanConversion
+  Model
 } from '../../lib/index';
 import { calcAll } from './calcAll';
 
 /**
  * Parse the data from the .d file, return a Model
- * @param {*} data 
+ * @param data 
+ * @param objPosition 
  */
-let yValue: number = 0;
-const parseFile = (data: string): Model => {
+const parseFile = (data: string, objPosition: Vector3d): Model => {
   let lines: string = <any>data.match(/[^\r\n]+/g);
   let [num, pointsNum, facesNum] = lines[0].trim().split(/\s+/);
   // Cause in some file, there are just two number in first line
@@ -28,25 +25,24 @@ const parseFile = (data: string): Model => {
     pointsNum = num;
   }
   const [pNum, fNum] = [parseInt(pointsNum, 10), parseInt(facesNum)];
-
   // load data to model
-  const model = new Model();
-
+  const lastModelPointsNum = model.points.length;
   for (let i = 1; i <= pNum; i++) {
     let [x, y, z] = lines[i].trim().split(/\s+/);
-    model.points.push(new Vector3d(parseFloat(x), parseFloat(y), parseFloat(z)));
+    model.points.push(new Vector3d(
+      parseFloat(x) + objPosition.x, 
+      parseFloat(y) + objPosition.y, 
+      parseFloat(z) + objPosition.z
+    ));
   }
 
   for (let i = pNum + 1; i <= pNum + fNum; i++) {
-    let [num, ...res] = lines[i].trim().split(/\s+/);
+    let [_, ...res] = lines[i].trim().split(/\s+/);
     if (res.length > 2) {
-      model.faces.push(res.map((x: any) => parseInt(x) - 1));
+      model.faces.push(res.map((x: string): number => parseInt(x, 10) - 1 + lastModelPointsNum));
     }
   }
-  
-  model.setPosition(new Vector3d(0, yValue, 0));
-  model.colorInit();
-  yValue += 2;
+  console.log(model);
   return model;
 };
 
@@ -75,15 +71,17 @@ const readFile = (filePath: string): Promise<string> => {
  * Load and render selected model
  * @param {String} filePath 
  */
-const loadFile = (filePaths: Array<string>): void => {
+const loadFile = (filePaths: Array<string>, draw: Function): void => {
   if (filePaths.length == 0) {
+    model.colorInit();
     calcAll();
+    draw();
   } else {
     const file = filePaths.pop();
     readFile(file)
       .then((data: string): void => {
-        models.push(parseFile(data));
-        loadFile(filePaths);
+        parseFile(data, new Vector3d(0, 0, 0));
+        loadFile(filePaths, draw);
       })
       .catch(() => {
         console.log(`Load or parse file${file} error`);

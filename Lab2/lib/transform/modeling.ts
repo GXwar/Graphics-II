@@ -2,18 +2,18 @@
  * @Author: GXwar 
  * @Date: 2019-02-19 00:20:21 
  * @Last Modified by: GXwar
- * @Last Modified time: 2019-02-19 16:52:47
+ * @Last Modified time: 2019-02-19 22:37:19
  */
 import { Camera } from '../cameras/Camera';
 import { Matrix } from '../math/Matrix';
 import { Vector3d } from '../math/Vector3d';
 import { Model } from '../objects/Model';
 
-const world2Camera = (model: any, camera: Camera): Matrix => {
+const world2Camera = (camera: Camera): Matrix => {
   const R: Matrix = new Matrix([
-    [model.U.x, model.U.y, model.U.z, 0],
-    [model.V.x, model.V.y, model.V.z, 0],
-    [model.N.x, model.N.y, model.N.z, 0],
+    [camera.U.x, camera.U.y, camera.U.z, 0],
+    [camera.V.x, camera.V.y, camera.V.z, 0],
+    [camera.N.x, camera.N.y, camera.N.z, 0],
     [0          , 0          , 0          , 1]
   ]);
   const T: Matrix = new Matrix([
@@ -40,8 +40,8 @@ const perspectiveTransform = (h: number, d: number, f: number): Matrix => new Ma
 const backFaceCulling = (model: Model, camera: Camera): Set<number> => {
   const backFaceSet: Set<number> = new Set();
   model.faces.forEach((face: Array<number>, index: number) => {
-    const v1 = model.points[face[0]].subtract(model.points[face[1]]);
-    const v2 = model.points[face[1]].subtract(model.points[face[2]]);
+    const v1 = model.points[face[1]].subtract(model.points[face[0]]);
+    const v2 = model.points[face[2]].subtract(model.points[face[1]]);
     const Np = v1.crossProduct(v2);
     const N = camera.position.subtract(model.points[face[0]]);
     if (Np.dotProduct(N) >= 0) {
@@ -53,7 +53,7 @@ const backFaceCulling = (model: Model, camera: Camera): Set<number> => {
 
 // Calculate model
 const calcModel = (model: Model, camera: Camera, h: number, d: number, f: number): Array<Vector3d> => {
-  const combo: Matrix = perspectiveTransform(h, d, f).multiply(world2Camera(model, camera));
+  const combo: Matrix = perspectiveTransform(h, d, f).multiply(world2Camera(camera));
   return model.points.map(point => {
     return combo.multiply(point.extend().toMatrix()).toVector();
   });

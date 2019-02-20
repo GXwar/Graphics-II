@@ -38,18 +38,6 @@ const server = http.createServer((req, res) => {
   }
   console.log("Request for "+ filePath + "  received.");
 
-  // get requested content from file system
-  // fs.readFile(pathname.substr(1),function(err, data) {
-  //     if(err) {
-  //         console.log(err);
-  //         res.writeHead(404,{'Content-Type': 'text/html'});
-  //     }
-  //     else {
-  //         res.writeHead(200,{'Content-Type': 'text/html'});
-  //         res.write(data.toString());
-  //     }
-  //     res.end();
-  // });
   fs.stat(filePath, err => {
     if(err){
         console.log(err);
@@ -58,15 +46,15 @@ const server = http.createServer((req, res) => {
         ext = ext?ext.slice(1) : 'unknown';
         var contentType = MIME_TYPE[ext] || "text/plain";
         fs.readFile(filePath,function(err,data){
-            if(err){
-                res.end("<h1>500</h1>服务器内部错误！");
-            }else{
-                res.writeHead(200,{'content-type':contentType});
-                res.end(data.toString());
-            }
-        });//fs.readfile
+          if(err){
+              res.end("<h1>500</h1>Server inner error");
+          }else{
+              res.writeHead(200,{'content-type':contentType});
+              res.end(data.toString());
+          }
+        });
     }
-  })//path.exists
+  });
 });
 
 server.listen(port, hostname, () => {
@@ -81,7 +69,7 @@ const openBrowser = (cmd, url, browser) => {
     // if open failed, use default browser
     if (error) {
       console.log(error);
-      cp.exec(`${cmd} ${url}`)
+      cp.exec(`${cmd} ${url}`);
     }
   });
 }

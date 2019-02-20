@@ -8,6 +8,7 @@
 const files: Array<string> = [
   'atc',
   'ball',
+  'bench',
   'cow',
   'cone',
   'knight'

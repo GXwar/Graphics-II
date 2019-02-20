@@ -2,24 +2,16 @@
  * @Author: GXwar 
  * @Date: 2019-02-14 15:18:52 
  * @Last Modified by: GXwar
- * @Last Modified time: 2019-02-19 18:57:06
+ * @Last Modified time: 2019-02-19 22:39:18
  */
-import {
-  models, parameters
-} from './configs/parameters';
+import { parameters } from './configs/parameters';
 import loadFile from './utils/loadFile';
 import {
   loadMenu,
   bindSlider,
   reactToOperation
 } from './utils/dom';
-import {
-  Model,
-  RGBA
-} from '../lib/index';
-import {
-  bufferInit
-} from '../lib/index';
+import { RGBA } from '../lib/index';
 
 /******************** Initialize DOM ********************/
 // Get canvas ready
@@ -34,7 +26,7 @@ const choose_model2: HTMLSelectElement = <HTMLSelectElement>document.querySelect
 loadMenu(choose_model1);
 loadMenu(choose_model2);
 // // Get three slides ready binding with h, d, f parameter
-['h', 'd', 'f'].forEach(item => bindSlider(item));
+['h', 'd', 'f'].forEach(item => bindSlider(item, draw));
 
 // Button
 // Bind render button with load file and render opertion
@@ -51,7 +43,7 @@ renderBtn.addEventListener('click', () => {
   modelNames = modelNames.map((name: string): string => {
     return `./public/model/${name}.d.txt`;
   });
-  loadFile(modelNames);
+  loadFile(modelNames, draw);
   renderBtn.disabled = true;
 });
 // bind reset button with refresh function
@@ -64,15 +56,15 @@ resetBtn.addEventListener('click', () => {
 parameters.width = width;
 parameters.height = height;
 // // Binding operation
-reactToOperation(canvas);
-
-draw();
+reactToOperation(canvas, draw);
 
 function draw(): void {
+  // clear before image
   ctx.clearRect(0, 0, width, height);
-  const imageData = ctx.createImageData(width, height);
-  const data = new Uint8Array(width * height * 4);
-  const iBuffer = getBuffer(models, height, width);
+  // draw
+  const imageData: ImageData = ctx.createImageData(width, height);
+  const data: Uint8Array = new Uint8Array(width * height * 4);
+  const iBuffer: Array<Array<RGBA>> = parameters.iBuffer;
   for (let i = 0; i < height; i++) {
     for (let j = 0; j < width; j++) {
       const t = i * width + j;
@@ -85,21 +77,4 @@ function draw(): void {
   }
   imageData.data.set(data);
   ctx.putImageData(imageData, 0, 0);
-  requestAnimationFrame(draw);
-}
-
-function getBuffer(models: Array<Model>, height: number, width: number): Array<Array<RGBA>> {
-  const [iBuffer, zBuffer] = bufferInit(height, width);
-  if (models.length == 2 && models.every(model => model.ready)) {
-    for (let i = 0; i < height; i++) {
-      for (let j = 0; j < width; j++) {
-        for (let k = 0; k < models.length; k++) {
-          if (models[k].zBuffer[i][j] < zBuffer[i][j]) {
-            iBuffer[i][j] = models[k].iBuffer[i][j];
-          }
-        }
-      }
-    }
-  }
-  return iBuffer;
 }
