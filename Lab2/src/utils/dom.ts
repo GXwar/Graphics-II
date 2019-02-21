@@ -2,12 +2,11 @@
  * @Author: GXwar 
  * @Date: 2019-02-14 18:55:51 
  * @Last Modified by: GXwar
- * @Last Modified time: 2019-02-19 22:47:54
+ * @Last Modified time: 2019-02-19 22:54:29
  */
 /******************** DOM OPERATION ********************/
 import { parameters, camera } from '../configs/parameters';
 import { files } from '../configs/constants';
-import { calcAll } from '../utils/calcAll';
 
 /**
  * Load menu

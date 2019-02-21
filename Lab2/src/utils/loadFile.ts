@@ -2,14 +2,13 @@
  * @Author: GXwar 
  * @Date: 2019-02-12 15:08:51 
  * @Last Modified by: GXwar
- * @Last Modified time: 2019-02-19 22:48:16
+ * @Last Modified time: 2019-02-19 22:54:34
  */
 import { model } from '../configs/parameters';
 import { 
   Vector3d, 
   Model
 } from '../../lib/index';
-import { calcAll } from './calcAll';
 
 /**
  * Parse the data from the .d file, return a Model
