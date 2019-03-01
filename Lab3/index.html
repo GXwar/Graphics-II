@@ -1,0 +1,48 @@
+<html>
+  <head>
+    <link href="./public/style/index.css" rel="stylesheet" type="text/css"/>
+  </head>
+<body>
+  <h3 id="graphic">Graphics II - Lab 2</h3>
+  <div>
+    <canvas id="content" width="600" height="600"></canvas>
+    <hr class="seperator" size=600>
+    <div class="control-panel">
+      <div class="select-model">
+        <p class="title">1. Select a model:</p>
+        <select class="choose_model1">
+          <option disabled selected value>Please select model1</option>
+        </select><br/>
+        <select class="choose_model2">
+          <option disabled selected value>Please select model2</option>
+        </select><br/>
+        <button class="render">Render</button>
+        <button class="reset">Reset</button>
+      </div>
+      <div class="set-parameter">
+        <p class="title">2. Camera parameter:</p>
+        <div class="slidecontainer">
+          <input id="h" type="range" min="0.1" max="10" value="1" step="0.1" class="slider">
+          <p>h: <span id="h_V"></span></p>
+        </div>
+        <div class="slidecontainer">
+          <input id="d" type="range" min="0.1" max="10" value="1" step="0.1" class="slider">
+          <p>d: <span id="d_V"></span></p>
+        </div>
+        <div class="slidecontainer">
+          <input id="f" type="range" min="10" max="500" value="100" class="slider">
+          <p>f: <span id="f_V"></span></p>
+        </div>
+      </div>
+      <div class="instruction">
+        <p class="title">3. Instruction</p>
+        <ul>
+          <li>Using mouse wheel to scale up or down the model</li>
+          <li>Using i, j, k, l to rotate camera</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <script type="module" src="./dist/main.js"></script>
+</body>
+</html>

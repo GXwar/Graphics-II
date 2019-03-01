@@ -1,0 +1,32 @@
+// Command used to compile from scss to css
+// Debug: scss --watch index.scss:index.css --sourcemap
+// Build: scss index.scss index.css --style compressed && rm index.css.map && rm -rf .sass-cache
+
+#graphic {
+  font-size: 30px;
+  text-align: center;
+}
+
+#content {
+  display: inline-block;
+}
+
+.seperator {
+  display: inline-block;
+  border-top: 1px solid #ddd;
+  margin: 0 10px;
+}
+
+.control-panel {
+  display: inline-block;
+  vertical-align: top;
+  .title {
+    font-size: 20px;
+    margin: 15px 0 10px 0;
+  }
+  .select-model {
+    .title {
+      margin-top: 0;
+    }
+  }
+}
