@@ -11,6 +11,7 @@ const files: Array<string> = [
   'bench',
   'cow',
   'cone',
+  'house',
   'knight'
 ];
 

@@ -8,16 +8,16 @@ import { Vector3d } from '../math/Vector3d';
 
 class Camera {
   position: Vector3d;
+  viewingPoint: Vector3d;
   UP: Vector3d;
-  pRef: Vector3d;
   N: Vector3d;
   U: Vector3d;
   V: Vector3d;
 
-  constructor(position: Vector3d, UP: Vector3d, pRef: Vector3d) {
+  constructor(position: Vector3d, viewingPoint: Vector3d, UP: Vector3d) {
     this.position = position;
+    this.viewingPoint = viewingPoint;
     this.UP = UP;
-    this.pRef = pRef;
   }
 
   /**
@@ -25,7 +25,7 @@ class Camera {
    * @param objectPosition 
    */
   calcNUV(): void {
-    this.N = this.pRef.subtract(this.position).unit();
+    this.N = this.viewingPoint.subtract(this.position).unit();
     this.U = this.N.crossProduct(this.UP).unit();
     this.V = this.U.crossProduct(this.N);
   }

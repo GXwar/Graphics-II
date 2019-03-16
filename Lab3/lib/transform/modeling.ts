@@ -26,10 +26,10 @@ const world2Camera = (camera: Camera): Matrix => {
 };
 
 const perspectiveTransform = (h: number, d: number, f: number): Matrix => new Matrix([
-  [d / h, 0, 0, 0          ],
-  [0, d / h, 0, 0          ],
-  [0, 0, f / (f - d), - d * f / (f - d)],
-  [0, 0, 1, 0          ]
+  [d / h, 0,     0,           0                ],
+  [0,     d / h, 0,           0                ],
+  [0,     0,     f / (f - d), - d * f / (f - d)],
+  [0,     0,     1,           0                ]
 ]);
 
 /**
@@ -40,11 +40,9 @@ const perspectiveTransform = (h: number, d: number, f: number): Matrix => new Ma
 const backFaceCulling = (model: Model, camera: Camera): Set<number> => {
   const backFaceSet: Set<number> = new Set();
   model.faces.forEach((face: Array<number>, index: number) => {
-    const v1 = model.points[face[1]].subtract(model.points[face[0]]);
-    const v2 = model.points[face[2]].subtract(model.points[face[1]]);
-    const Np = v1.crossProduct(v2);
-    const N = camera.position.subtract(model.points[face[0]]);
-    if (Np.dotProduct(N) >= 0) {
+    const view = camera.position.subtract(model.points[face[1]]).unit();
+    const cos = model.facesNormal[index].dotProduct(view);
+    if (cos >= 0) {
       backFaceSet.add(index);
     }
   });

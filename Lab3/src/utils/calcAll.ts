@@ -9,14 +9,15 @@ import {
   calcModel,
   scanConversion,
   Model,
-  Camera
+  Camera,
+  Vector3d
 } from '../../lib/index';
 
-const calcAll = (model: Model, camera: Camera, parameters: any) => {
+const calcAll = (model: Model, lights: Array<Vector3d>, camera: Camera, parameters: any) => {
   camera.calcNUV();
   const backFaceSet = backFaceCulling(model, camera);
   const calcPoints = calcModel(model, camera, parameters.h, parameters.d, parameters.f);
-  return scanConversion(model, calcPoints, backFaceSet, parameters.height, parameters.width);
+  return scanConversion(model, lights, calcPoints, backFaceSet, parameters.height, parameters.width);
 };
 
 export { calcAll };

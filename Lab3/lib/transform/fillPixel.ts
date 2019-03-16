@@ -24,7 +24,7 @@ const bufferInit = (height: number, width: number): [Array<Array<RGBA>>, Array<A
     iBuffer[i] = [];
     zBuffer[i] = [];
     for (let j = 0; j < width; j++) {
-      iBuffer[i][j] = new RGBA();
+      iBuffer[i][j] = new RGBA(200, 200, 200, 255);
       zBuffer[i][j] = 1;
     }
   }
@@ -45,42 +45,38 @@ const edgeTableInit = (height: number): Array<Array<EdgeTableElement>> => {
  * 2. Find the start and end of the span
  * 3. Rely on scanline and pixel coherence to linearly interpolate (between scanlines and between pixels)
  */
-const addEdgeToET = (lowerPoint: Vector3d, upperPoint: Vector3d, edgeTable: Array<Array<EdgeTableElement>>, height: number): void => {
-  // ignore horizontal edge and out of range point
-  if (toPixel(lowerPoint.y, height) === toPixel(upperPoint.y, height)
-      || lowerPoint.y > 1 || lowerPoint.y < -1) return;
-  // swap the order of two points
-  if (lowerPoint.y > upperPoint.y) {
-    [lowerPoint, upperPoint] = [upperPoint, lowerPoint];
-  }
-  // create edge table element and add it into the edge table
-  const ETElement = new EdgeTableElement(toPixel(lowerPoint.y, height), toPixel(upperPoint.y, height, true), toFloatPixel(lowerPoint.x, height), 
-                                (lowerPoint.x - upperPoint.x) / (lowerPoint.y - upperPoint.y), upperPoint.z, lowerPoint.z);
-  if (ETElement.yStart > ETElement.yMax) {
-    ETElement.yMax = ETElement.yStart;
-  }
-  edgeTable[Math.floor(ETElement.yStart)].push(ETElement);
-};
+const diffuseTrem = (kd: number, ILight: number, normal: Vector3d, light: Vector3d) => {
+  const gradient = normal.dotProduct(light);
+  return gradient > 0 ? gradient * kd * ILight : 0;
+}
 
-// Calculation of z
-const calcZ = (edge: EdgeTableElement, ys: number): number => edge.yMax === edge.yStart ? edge.zUpper : 
-                        edge.zUpper - (edge.zUpper - edge.zLower) * (edge.yMax - ys) / (edge.yMax - edge.yStart);
-
-const scanConversion = (model: Model, calcPoints: Array<Vector3d>, backFaceSet: Set<number>,
+const scanConversion = (model: Model, lights: Array<Vector3d>, calcPoints: Array<Vector3d>, backFaceSet: Set<number>,
                          height: number, width: number): Array<Array<RGBA>> => {
   const [iBuffer, zBuffer] = bufferInit(height, width);
   let activeEdgeTable: Array<EdgeTableElement> = [];
+  const redSet = new Set();
   // for each face
   model.faces.forEach((face: Array<number>, index: number) => {
-    // don't need to consider back face
-    if (backFaceSet.has(index)) return;
     // build edge table
     const edgeTable = edgeTableInit(height);
     for (let i = 0; i < face.length; i++) {
       // get an edge 
-      let lowerPoint = calcPoints[face[i]];
-      let upperPoint = calcPoints[face[(i + 1) % face.length]];
-      addEdgeToET(lowerPoint, upperPoint, edgeTable, height);
+      let [indexStart, indexEnd] = [face[i], face[(i + 1) % face.length]];
+      let [lowerPoint, upperPoint] = [calcPoints[indexStart], calcPoints[indexEnd]];
+      // ignore horizontal edge and out of range point
+      if (toPixel(lowerPoint.y, height) === toPixel(upperPoint.y, height)
+          || lowerPoint.y > 1 || lowerPoint.y < -1) continue;
+      // swap the order of two points
+      if (lowerPoint.y > upperPoint.y) {
+        [lowerPoint, upperPoint] = [upperPoint, lowerPoint];
+        [indexStart, indexEnd] = [indexEnd, indexStart];
+      }
+      // create edge table element and add it into the edge table
+      const ETElement = new EdgeTableElement(toPixel(lowerPoint.y, height), toPixel(upperPoint.y, height), toFloatPixel(lowerPoint.x, height), 
+                                              (lowerPoint.x - upperPoint.x) / (lowerPoint.y - upperPoint.y), lowerPoint.z,
+                                              (lowerPoint.z - upperPoint.z) / (toPixel(lowerPoint.y, height) - toPixel(upperPoint.y, height)),
+                                              model.pointsNormal[indexStart], model.pointsNormal[indexEnd]);
+      edgeTable[Math.floor(ETElement.yStart)].push(ETElement);
     }
     
     // fill pixel to pixel buffer
@@ -91,34 +87,61 @@ const scanConversion = (model: Model, calcPoints: Array<Vector3d>, backFaceSet: 
         break;
       }
     }
+    
     for (let i = currentScanLine; i < height; i++) {
       // move edge from Edge Tabel to Active Edge Table
       for (let j = 0; j < edgeTable[i].length; j++) {
         activeEdgeTable.push(edgeTable[i][j]);
       }
-      activeEdgeTable.sort((a, b) => {
-        return a.xStart - b.xStart;
-      });
+
+      // remove the leaving edge
+      activeEdgeTable = activeEdgeTable
+        // remove edge from Active Edge Table while y = yMax
+        .filter(edge => edge.yMax !== i) 
+        // sort AET by xStart
+        .sort((a, b) => {
+          return a.xStart - b.xStart;
+        });
 
       for (let j = 0; j + 1 < activeEdgeTable.length; j += 2) {
         const [left, right] = [activeEdgeTable[j], activeEdgeTable[j + 1]];
-        if (left.xStart > right.xStart) continue;
-        const [za, zb] = [calcZ(left, i), calcZ(right, i)];
-        for (let k = Math.max(0, Math.floor(left.xStart)); k < Math.floor(right.xStart) && k < width; k++) {
-          // calculate the current point's z coordinate
-          let zp = k == Math.max(0, left.xStart) ? za : zb - (zb - za) * (right.xStart - k) / (right.xStart - left.xStart);
-          if (zp > zBuffer[i][k]) continue;
-          zBuffer[i][k] = zp;
-          iBuffer[i][k] = model.facesColor[index];
+        let zCurrent = left.zStart;
+        const zDeltaToX = (left.zStart - right.zStart) / (left.xStart - right.xStart);
+        // console.log(`----- ${j} ${j + 1} -----`)
+        // according to intensity
+        const la: Vector3d = left.normalEnd.scale((i - left.yStart) / (left.yMax - left.yStart)).add(
+          left.normalStart.scale((left.yMax - i) / (left.yMax - left.yStart))
+        );
+        const lb: Vector3d = right.normalEnd.scale((i - right.yStart) / (right.yMax - right.yStart)).add(
+          right.normalStart.scale((right.yMax - i) / (right.yMax -right.yStart))
+        );
+        for (let k = Math.floor(left.xStart); k < Math.floor(right.xStart); k++) {
+          let covered: boolean = false;
+          if (zCurrent <= zBuffer[i][k]) {
+            if (zBuffer[i][k] != 1) covered = true;
+            zBuffer[i][k] = zCurrent;
+            const curNormal: Vector3d = right.xStart - left.xStart == 0 ? la.unit() :
+              la.scale((right.xStart - k) / (right.xStart - left.xStart)).add(lb.scale((k - left.xStart) / (right.xStart - left.xStart))).unit();
+            let gray = 0;
+            const org = new Vector3d(0, 0, 0);
+            for (let light of lights) {
+              light = org.subtract(light).unit();
+              gray += diffuseTrem(1, 88, curNormal, light);
+            }
+            if (backFaceSet.has(index)) {
+              iBuffer[i][k] = new RGBA(covered ? 255 : 0, covered ? 0 : 255, 0, 255);
+              redSet.add(index);
+            } else {
+              iBuffer[i][k] = new RGBA(gray, gray, gray, 255);
+            }
+          }
+          zCurrent += zDeltaToX;
         }
+        left.xStart += left.delta;
+        right.xStart += right.delta;
+        left.zStart += left.zDeltaToY;
+        right.zStart += right.zDeltaToY;
       }
-      
-      activeEdgeTable = activeEdgeTable
-        .filter(edge => edge.yMax !== i) // remove edge from Active Edge Table while y = yMax
-        .map(edge => {  // increase x with delta because y increased with 1
-          edge.xStart += edge.delta;
-          return edge;
-        });
     }
   });
   return iBuffer;

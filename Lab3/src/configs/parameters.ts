@@ -17,7 +17,8 @@ interface parameterObj {
   f: number,
   height: number,
   width: number,
-  iBuffer: Array<Array<RGBA>>
+  iBuffer: Array<Array<RGBA>>,
+  lights: Array<Vector3d>
 }
 
 const parameters: parameterObj = {
@@ -26,10 +27,13 @@ const parameters: parameterObj = {
   f: 1000,
   height: 0,
   width: 0,
-  iBuffer: []
+  iBuffer: [],
+  lights: [
+    new Vector3d(100, 100, 100)
+  ]
 };
 
-const camera: Camera = new Camera(new Vector3d(0, 20, 20), new Vector3d(0, -1, 0), new Vector3d(0, 0, 0));
+const camera: Camera = new Camera(new Vector3d(10, 10, 10), new Vector3d(0, 0, 0), new Vector3d(0, 1, 0));
 
 const model: Model = new Model();
 

@@ -35,15 +35,17 @@ const renderBtn: HTMLButtonElement = <HTMLButtonElement>document.querySelector('
 renderBtn.addEventListener('click', () => {
   const modelIndex1 = choose_model1.selectedIndex;
   const modelIndex2 = choose_model2.selectedIndex;
-  if (modelIndex1 === 0 || modelIndex2 === 0) {
-    alert('Please select a model to render');
-  }
+  // if (modelIndex1 === 0 || modelIndex2 === 0) {
+  //   alert('Please select a model to render');
+  // }
   let modelNames: Array<string> = [];
   modelNames.push(choose_model1.options[modelIndex1].value);
   modelNames.push(choose_model2.options[modelIndex2].value);
-  modelNames = modelNames.map((name: string): string => {
-    return `./public/model/${name}.d.txt`;
-  });
+  modelNames = modelNames
+    .filter((name: string): boolean => name.length != 0)
+    .map((name: string): string => {
+      return `./public/model/${name}.d.txt`;
+    });
   loadFile(modelNames, draw);
   renderBtn.disabled = true;
 });
@@ -65,7 +67,7 @@ function draw(): void {
   // draw
   const imageData: ImageData = ctx.createImageData(width, height);
   const data: Uint8Array = new Uint8Array(width * height * 4);
-  const iBuffer: Array<Array<RGBA>> = calcAll(model, camera, parameters);
+  const iBuffer: Array<Array<RGBA>> = calcAll(model, parameters.lights, camera, parameters);
   for (let i = 0; i < height; i++) {
     for (let j = 0; j < width; j++) {
       const t = i * width + j;
