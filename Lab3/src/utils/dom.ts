@@ -2,7 +2,7 @@
  * @Author: GXwar 
  * @Date: 2019-02-14 18:55:51 
  * @Last Modified by: GXwar
- * @Last Modified time: 2019-05-06 01:06:23
+ * @Last Modified time: 2019-05-06 01:22:26
  */
 /******************** DOM OPERATION ********************/
 import { parameters, camera } from '../configs/parameters';
@@ -52,22 +52,22 @@ export const reactToOperation = (canvas: HTMLCanvasElement, draw: Function) => {
     draw();
     event.preventDefault();
   });
-  document.addEventListener('keypress', function(e) {
-    switch (e.key) {
+  document.addEventListener('keypress', function(event: any) {
+    switch (event.key) {
       case 'i':
-        camera.position.y += cameraLen;
-        draw();
-        break;
-      case 'k': 
         camera.position.y -= cameraLen;
         draw();
         break;
+      case 'k': 
+        camera.position.y += cameraLen;
+        draw();
+        break;
       case 'j':
-        camera.position.x -= cameraLen;
+        camera.position.x += cameraLen;
         draw();
         break;
       case 'l':
-        camera.position.x += cameraLen;
+        camera.position.x -= cameraLen;
         draw();
         break;
       default:
