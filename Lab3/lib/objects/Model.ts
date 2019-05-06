@@ -51,11 +51,6 @@ class Model {
         this.pointsNormal[i] = this.pointsNormal[i].unit();
       }
     }
-
-    console.log('---------- points_normal -----------');
-    // this.pointsNormal.forEach((pointNormal: Vector3d) => {
-    //   console.log(pointNormal);
-    // })
   }
 }
 

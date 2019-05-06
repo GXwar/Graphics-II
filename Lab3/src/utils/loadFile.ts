@@ -2,7 +2,7 @@
  * @Author: GXwar 
  * @Date: 2019-02-12 15:08:51 
  * @Last Modified by: GXwar
- * @Last Modified time: 2019-02-19 22:54:34
+ * @Last Modified time: 2019-05-06 01:00:47
  */
 import { model, parameters } from '../configs/parameters';
 import { 
@@ -26,7 +26,6 @@ const parseFile = (data: string, objPosition: Vector3d): Model => {
   const [pNum, fNum] = [parseInt(pointsNum, 10), parseInt(facesNum)];
   // load data to model
   const lastModelPointsNum = model.points.length;
-  console.log('---------- points ----------')
   for (let i = 1; i <= pNum; i++) {
     let [x, y, z] = lines[i].trim().split(/\s+/);
     model.points.push(new Vector3d(
@@ -34,23 +33,14 @@ const parseFile = (data: string, objPosition: Vector3d): Model => {
       parseFloat(y) + objPosition.y, 
       parseFloat(z) + objPosition.z
     ));
-    // console.log(new Vector3d(
-    //   parseFloat(x) + objPosition.x, 
-    //   parseFloat(y) + objPosition.y, 
-    //   parseFloat(z) + objPosition.z
-    // ));
     model.pointsNormal.push(new Vector3d(0, 0, 0));
   }
 
-  console.log('---------- faces ----------')
   for (let i = pNum + 1; i <= pNum + fNum; i++) {
     let [_, ...res] = lines[i].trim().split(/\s+/);
     if (res.length <= 2) continue;
     let face: Array<number> = res.map((x: string): number => parseInt(x, 10) - 1 + lastModelPointsNum);
     model.faces.push(face);
-    // console.log(face);
-    // console.log(`face_normal:`);
-    // console.log(model.normalizeFace(model.faces.length - 1))
     model.facesNormal.push(model.normalizeFace(model.faces.length - 1));
   }
   return model;
@@ -81,22 +71,18 @@ const readFile = (filePath: string): Promise<string> => {
  * Load and render selected model
  * @param {String} filePath 
  */
-const loadFile = (filePaths: Array<string>, draw: Function): void => {
-  if (filePaths.length == 0) {
-    model.colorInit(false, parameters.lights);
-    model.computeScenePointNormal();
-    draw();
-  } else {
-    const file = filePaths.pop();
-    readFile(file)
-      .then((data: string): void => {
-        parseFile(data, new Vector3d(0, 0, 0));
-        loadFile(filePaths, draw);
-      })
-      .catch(() => {
-        console.log(`Load or parse file${file} error`);
-      });
-  }
+const loadFile = (filePath: string, shadingType: string, draw: Function): void => {
+  readFile(filePath)
+    .then((data: string): void => {
+      parseFile(data, new Vector3d(0, 0, 0));
+      model.colorInit(false, parameters.lights);
+      model.computeScenePointNormal();
+      parameters.shadingType = shadingType;
+      draw();
+    })
+    .catch(() => {
+      console.log(`Load or parse file${filePath} error`);
+    });
 };
 
 export default loadFile;

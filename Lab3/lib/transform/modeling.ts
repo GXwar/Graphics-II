@@ -2,7 +2,7 @@
  * @Author: GXwar 
  * @Date: 2019-02-19 00:20:21 
  * @Last Modified by: GXwar
- * @Last Modified time: 2019-02-19 22:37:19
+ * @Last Modified time: 2019-05-06 00:40:49
  */
 import { Camera } from '../cameras/Camera';
 import { Matrix } from '../math/Matrix';
@@ -14,7 +14,7 @@ const world2Camera = (camera: Camera): Matrix => {
     [camera.U.x, camera.U.y, camera.U.z, 0],
     [camera.V.x, camera.V.y, camera.V.z, 0],
     [camera.N.x, camera.N.y, camera.N.z, 0],
-    [0          , 0          , 0          , 1]
+    [0          , 0        , 0         , 1]
   ]);
   const T: Matrix = new Matrix([
     [1, 0, 0, -camera.position.x],

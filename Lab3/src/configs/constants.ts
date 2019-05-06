@@ -5,9 +5,8 @@
  * @Last Modified time: 2019-02-19 19:15:08
  */
 // data files to be loaded
-const files: Array<string> = [
+export const files: Array<string> = [
   'atc',
-  'ball',
   'bench',
   'cow',
   'cone',
@@ -15,4 +14,8 @@ const files: Array<string> = [
   'knight'
 ];
 
-export { files };
+export const shadingModels: Array<string> = [
+  'Constant',
+  'Gouraud',
+  'Phong'
+];

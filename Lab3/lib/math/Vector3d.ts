@@ -2,7 +2,7 @@
  * @Author: GXwar 
  * @Date: 2019-02-15 01:32:16 
  * @Last Modified by: GXwar
- * @Last Modified time: 2019-02-19 15:30:21
+ * @Last Modified time: 2019-05-06 00:22:52
  */
 import { Vector } from './Vector';
 import { Vector4d } from "./Vector4d";

@@ -2,18 +2,18 @@
  * @Author: GXwar 
  * @Date: 2019-02-14 18:55:51 
  * @Last Modified by: GXwar
- * @Last Modified time: 2019-02-19 22:54:29
+ * @Last Modified time: 2019-05-06 01:06:23
  */
 /******************** DOM OPERATION ********************/
 import { parameters, camera } from '../configs/parameters';
-import { files } from '../configs/constants';
+
 
 /**
  * Load menu
  * @param selectDOM 
  */
-export const loadMenu = (selectDOM: HTMLSelectElement) => {
-  files.forEach(file => {
+export const loadMenu = (selectDOM: HTMLSelectElement, data: Array<string>) => {
+  data.forEach(file => {
     const option = document.createElement('option');
     option.setAttribute("value", file);
     option.appendChild(document.createTextNode(file));
@@ -45,11 +45,12 @@ export const reactToOperation = (canvas: HTMLCanvasElement, draw: Function) => {
   // zooming the model
   canvas.addEventListener('mousewheel', function(event: any) {
     if (event.wheelDelta > 0) {
-      camera.position = camera.position.scale(6/5);
+      camera.position = camera.position.scale(6 / 5);
     } else {
-      camera.position = camera.position.scale(5/6);
+      camera.position = camera.position.scale(5 / 6);
     }
     draw();
+    event.preventDefault();
   });
   document.addEventListener('keypress', function(e) {
     switch (e.key) {
