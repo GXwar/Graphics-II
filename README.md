@@ -29,3 +29,13 @@ Since this project used the `type="module"` feature to structure the project, yo
   1. Click the Preview above to view the project through github pages.
   2. Install a local server to open the /Lab3/index.html.
   3. Install node environment and npm. Open the terminal, enter /Lab3 directory, and then enter command `npm install && npm run build && npm start`. (I writed a mini server in `/Lab3/server.js` with node.js, so it is similar way with approach 2)
+
+* Lab 4 ([Preview](https://gxwar.github.io/Graphics-II/Lab4/index))
+
+  For this project, I migrated it to TypeScript to reduce overall bug density and get more IDE Supports.
+
+  There are 3 ways you could use to run the project.
+
+  1. Click the Preview above to view the project through github pages.
+  2. Install a local server to open the /Lab4/index.html.
+  3. Install node environment and npm. Open the terminal, enter /Lab4 directory, and then enter command `npm install && npm run build && npm start`. (I writed a mini server in `/Lab4/server.js` with node.js, so it is similar way with approach 2)
